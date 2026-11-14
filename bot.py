@@ -9,7 +9,7 @@ import requests
 
 # --- 1. ENTERPRISE OAUTH2 WEB DASHBOARD ---
 app = Flask('')
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'adda_zone_secure_oauth_key_v13')
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'adda_zone_secure_oauth_key_v14')
 data_lock = threading.Lock()
 
 # আপনার সুনির্দিষ্ট ৪টি এনভায়রনমেন্ট ভেরিয়েবল এবং ক্লায়েন্ট সিক্রেট
@@ -25,7 +25,7 @@ DASHBOARD_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adda_Zone • Advanced Security & Permission Hub</title>
+    <title>Adda_Zone • Full Granular Permission & Security Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,7 +37,7 @@ DASHBOARD_HTML = """
             --text-muted: #9ca3af;
         }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 950px; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); text-align: center; }
+        .container { width: 100%; max-width: 1000px; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); text-align: center; }
         .header { margin-bottom: 30px; position: relative; }
         h1 { color: #38bdf8; margin: 0 0 8px 0; font-size: 28px; font-weight: 700; }
         p.subtitle { color: var(--text-muted); margin: 0; font-size: 14px; }
@@ -57,6 +57,10 @@ DASHBOARD_HTML = """
         label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 13px; color: #d1d5db; }
         input[type="text"], select { width: 100%; padding: 12px 16px; background: #111827; border: 1px solid var(--border-color); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
         
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 10px; background: #111827; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .checkbox-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #d1d5db; cursor: pointer; }
+        .checkbox-item input { width: 16px; height: 16px; accent-color: #38bdf8; cursor: pointer; }
+
         button.submit-btn { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; }
         button.submit-btn:hover { background: linear-gradient(135deg, #0369a1 100%, #075985 100%); }
         
@@ -79,7 +83,7 @@ DASHBOARD_HTML = """
                 </select>
             </div>
             <h1 id="t_title">🛡️ Adda_Zone Security Hub</h1>
-            <p class="subtitle" id="t_subtitle">Dynamic Dropdown Channel, Role & Member Permission Panel</p>
+            <p class="subtitle" id="t_subtitle">Complete Server Permission & Bot Whitelist Control Panel</p>
         </div>
         
         {% if not logged_in %}
@@ -146,43 +150,45 @@ DASHBOARD_HTML = """
                 </div>
 
                 <div class="form-section">
-                    <div class="section-title" id="t_sec_whitelist">👑 Member Whitelist & Moderator Selector</div>
+                    <div class="section-title" id="t_sec_whitelist">🤖 Bot & Member Whitelist & Full Granular Permissions</div>
                     <div class="form-group">
-                        <label for="whitelist_member" id="t_lbl_whitelist">Select Server Member to Whitelist (মডারেটর হিসেবে সিলেক্ট করুন)</label>
-                        <select id="whitelist_member" name="whitelist_member">
-                            <option value="">-- Select Member from Server --</option>
-                            {% if server_members %}
-                                {% for m in server_members %}
-                                <option value="{{ m.id }}">{{ m.name }} (ID: {{ m.id }})</option>
+                        <label for="whitelist_entity" id="t_lbl_whitelist">Select Server Member or Bot (মেম্বার বা বট সিলেক্ট করুন)</label>
+                        <select id="whitelist_entity" name="whitelist_entity">
+                            <option value="">-- Select Member or Bot from Server --</option>
+                            {% if server_entities %}
+                                {% for e in server_entities %}
+                                <option value="{{ e.id }}">{{ e.name }} (ID: {{ e.id }})</option>
                                 {% endfor %}
                             {% else %}
-                                <option value="">Select a server above first to load members</option>
+                                <option value="">Select a server above first to load entities</option>
                             {% endif %}
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="action_type" id="t_lbl_action">Whitelist Action (অ্যাকশন সিলেক্ট করুন)</label>
-                        <select id="action_type" name="action_type">
-                            <option value="add">➕ Add to Whitelist (অনুমতি দিন)</option>
-                            <option value="remove">➖ Remove from Whitelist (অনুমতি উঠিয়ে নিন)</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="form-section">
-                    <div class="section-title" id="t_sec_perms">⚙️ Advanced Security & Mention Permissions</div>
                     <div class="form-group">
-                        <label for="allow_everyone" id="t_lbl_everyone">Allow @everyone Mentions & Ping</label>
-                        <select id="allow_everyone" name="allow_everyone">
-                            <option value="true" {% if current_config.allow_everyone %}selected{% endif %}>✅ Allowed (@everyone Mention Enabled)</option>
-                            <option value="false" {% if not current_config.allow_everyone %}selected{% endif %}>❌ Blocked (@everyone Mention Restricted)</option>
-                        </select>
+                        <label id="t_lbl_perms_grid">Select Permissions to Grant (যে যে পারমিশন দিতে চান টিক দিন):</label>
+                        <div class="checkbox-grid">
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="administrator"> ⚡ Administrator (ফুল এক্সেস)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="manage_server"> 🌐 Manage Server (সার্ভার ম্যানেজ)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="manage_roles"> 🛡️ Manage Roles (রোল ম্যানেজ)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="manage_channels"> 📁 Manage Channels (চ্যানেল ম্যানেজ)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="kick_members"> 🥾 Kick Members (মেম্বার কিক)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="ban_members"> 🔨 Ban Members (মেম্বার ব্যান)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="timeout_members"> 🔇 Timeout / Mute Members (টাইমআউট)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="manage_messages"> 💬 Manage Messages (মেসেজ ডিলিট/ম্যানেজ)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="vc_mute"> 🎙️ Server Mute (ভয়েস মিউট)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="vc_unmute"> 🔊 Server Unmute (ভয়েস আনমিউট)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="vc_deafen"> 🎧 Server Deafen (ডিফেন্ড করা)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="mention_everyone"> 🔔 Mention @everyone / @here (এভরিওয়ান মেনশন)</label>
+                            <label class="checkbox-item"><input type="checkbox" name="perms" value="mention_roles"> 📢 Mention Roles (রোল মেনশন)</label>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="allow_roles" id="t_lbl_roles">Allow Role Mentions & Pings</label>
-                        <select id="allow_roles" name="allow_roles">
-                            <option value="true" {% if current_config.allow_roles %}selected{% endif %}>✅ Allowed (Role Pings Enabled)</option>
-                            <option value="false" {% if not current_config.allow_roles %}selected{% endif %}>❌ Blocked (Role Pings Restricted)</option>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="action_type" id="t_lbl_action">Action (অ্যাকশন সিলেক্ট করুন)</label>
+                        <select id="action_type" name="action_type">
+                            <option value="add">➕ Add / Save Permissions (অনুমতি সেট/যুক্ত করুন)</option>
+                            <option value="remove">➖ Remove All Permissions / Revoke (সব পারমিশন উঠিয়ে নিন)</option>
                         </select>
                     </div>
                 </div>
@@ -197,28 +203,24 @@ DASHBOARD_HTML = """
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="ping_channel_id" id="t_lbl_ping_chan">Select Target Channel (চ্যানেল ড্রপডাউন থেকে সিলেক্ট করুন)</label>
+                        <label for="ping_channel_id" id="t_lbl_ping_chan">Select Target Channel</label>
                         <select id="ping_channel_id" name="ping_channel_id">
                             <option value="">-- Choose Channel --</option>
                             {% if server_channels %}
                                 {% for c in server_channels %}
                                 <option value="{{ c.id }}" {% if current_config.ping_channel_id == c.id|int %}selected{% endif %}>#{{ c.name }} (ID: {{ c.id }})</option>
                                 {% endfor %}
-                            {% else %}
-                                <option value="">Select a server above first</option>
                             {% endif %}
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="ping_role_id" id="t_lbl_ping_role">Select Target Role to Ping (রোল ড্রপডাউন থেকে সিলেক্ট করুন)</label>
+                        <label for="ping_role_id" id="t_lbl_ping_role">Select Target Role to Ping</label>
                         <select id="ping_role_id" name="ping_role_id">
                             <option value="">-- Choose Role --</option>
                             {% if server_roles %}
                                 {% for r in server_roles %}
                                 <option value="{{ r.id }}" {% if current_config.ping_role_id == r.id|int %}selected{% endif %}>@{{ r.name }} (ID: {{ r.id }})</option>
                                 {% endfor %}
-                            {% else %}
-                                <option value="">Select a server above first</option>
                             {% endif %}
                         </select>
                     </div>
@@ -233,7 +235,7 @@ DASHBOARD_HTML = """
         {% endif %}
 
         <div class="footer">
-            Adda_Zone Security Architecture • Dynamic Dropdown Suite Active
+            Adda_Zone Security Architecture • Full Granular Permission Suite Active
         </div>
     </div>
 
@@ -241,7 +243,7 @@ DASHBOARD_HTML = """
         const translations = {
             en: {
                 title: "🛡️ Adda_Zone Security Hub",
-                subtitle: "Dynamic Dropdown Channel, Role & Member Permission Panel",
+                subtitle: "Complete Server Permission & Bot Whitelist Control Panel",
                 login_desc: "Secure authentication required to access management controls.",
                 login_btn: "Login with Discord",
                 sec_servers: "🌐 Protected Servers & Managed Hubs",
@@ -249,12 +251,10 @@ DASHBOARD_HTML = """
                 lbl_guild: "Select Target Server",
                 lbl_antinuke: "Anti-Nuke Defense (ON / OFF)",
                 lbl_sys_status: "Bot Core Status (Active / Standby)",
-                sec_whitelist: "👑 Member Whitelist & Moderator Selector",
-                lbl_whitelist: "Select Server Member to Whitelist",
-                lbl_action: "Whitelist Action",
-                sec_perms: "⚙️ Advanced Security & Mention Permissions",
-                lbl_everyone: "Allow @everyone Mentions & Ping",
-                lbl_roles: "Allow Role Mentions & Pings",
+                sec_whitelist: "🤖 Bot & Member Whitelist & Full Granular Permissions",
+                lbl_whitelist: "Select Server Member or Bot",
+                lbl_perms_grid: "Select Permissions to Grant:",
+                lbl_action: "Action",
                 sec2_title: "⏰ 24/7 Keep-Alive Auto-Ping & Channel/Role Settings",
                 lbl_ping_toggle: "Auto-Ping Switch",
                 lbl_ping_chan: "Select Target Channel",
@@ -264,7 +264,7 @@ DASHBOARD_HTML = """
             },
             bn: {
                 title: "🛡️ অ্যাডাজোন সিকিউরিটি হাব",
-                subtitle: "ডাইনামিক ড্রপডাউন চ্যানেল, রোল ও মেম্বার পারমিশন প্যানেল",
+                subtitle: "সম্পূর্ণ সার্ভার পারমিশন ও বট হোয়াইটলিস্ট কন্ট্রোল প্যানেল",
                 login_desc: "ম্যানেজমেন্ট কন্ট্রোল প্যানেল ব্যবহার করতে ডিসকর্ড দিয়ে লগইন করুন।",
                 login_btn: "ডিসকর্ড দিয়ে লগইন করুন",
                 sec_servers: "🌐 প্রোটেক্টেড সার্ভার ও ম্যানেজড হাবসমূহ",
@@ -272,12 +272,10 @@ DASHBOARD_HTML = """
                 lbl_guild: "টার্গেট সার্ভার সিলেক্ট করুন",
                 lbl_antinuke: "অ্যান্টি-নিউক ডিফেন্স (ON / OFF)",
                 lbl_sys_status: "বট কোরের অবস্থা (সচল/স্ট্যান্ডবাই)",
-                sec_whitelist: "👑 মেম্বার হোয়াইটলিস্ট ও মডারেটর সিলেক্টর",
-                lbl_whitelist: "তালিকা থেকে মেম্বার সিলেক্ট করুন",
-                lbl_action: "হোয়াইটলিস্ট অ্যাকশন (যুক্ত বা বাদ দিন)",
-                sec_perms: "⚙️ এডভান্সড সিকিউরিটি ও মেনশন পারমিশন",
-                lbl_everyone: "@everyone মেনশন ও পিং করার অনুমতি",
-                lbl_roles: "রোল মেনশন ও পিং করার অনুমতি",
+                sec_whitelist: "🤖 বট ও মেম্বার হোয়াইটলিস্ট এবং সম্পূর্ণ পারমিশন ম্যানেজার",
+                lbl_whitelist: "তালিকা থেকে মেম্বার বা বট সিলেক্ট করুন",
+                lbl_perms_grid: "যে যে পারমিশন দিতে চান টিক দিন:",
+                lbl_action: "অ্যাকশন (যুক্ত বা বাদ দিন)",
                 sec2_title: "⏰ ২৪/৭ সচল রাখার অটো-পিং ও চ্যানেল/রোল সেটিংস",
                 lbl_ping_toggle: "অটো-পিং সুইচ",
                 lbl_ping_chan: "টার্গেট চ্যানেল সিলেক্ট করুন",
@@ -302,10 +300,8 @@ DASHBOARD_HTML = """
                 document.getElementById('t_lbl_sys_status').innerText = t.lbl_sys_status;
                 document.getElementById('t_sec_whitelist').innerText = t.sec_whitelist;
                 document.getElementById('t_lbl_whitelist').innerText = t.lbl_whitelist;
+                document.getElementById('t_lbl_perms_grid').innerText = t.lbl_perms_grid;
                 document.getElementById('t_lbl_action').innerText = t.lbl_action;
-                document.getElementById('t_sec_perms').innerText = t.sec_perms;
-                document.getElementById('t_lbl_everyone').innerText = t.lbl_everyone;
-                document.getElementById('t_lbl_roles').innerText = t.lbl_roles;
                 document.getElementById('t_sec2_title').innerText = t.sec2_title;
                 document.getElementById('t_lbl_ping_toggle').innerText = t.lbl_ping_toggle;
                 document.getElementById('t_lbl_ping_chan').innerText = t.lbl_ping_chan;
@@ -327,7 +323,7 @@ def dashboard():
     guilds = session.get('guilds', [])
     
     selected_guild_id = request.args.get('guild_id', '').strip()
-    server_members = []
+    server_entities = []
     server_channels = []
     server_roles = []
     current_config = load_server_config(selected_guild_id) if selected_guild_id else {}
@@ -336,11 +332,11 @@ def dashboard():
         guild_obj = bot.get_guild(int(selected_guild_id))
         if guild_obj:
             for member in guild_obj.members:
-                if not member.bot:
-                    server_members.append({
-                        'id': str(member.id),
-                        'name': f"{member.name} ({member.display_name})"
-                    })
+                prefix_tag = "🤖 [Bot]" if member.bot else "👤 [Member]"
+                server_entities.append({
+                    'id': str(member.id),
+                    'name': f"{prefix_tag} {member.name} ({member.display_name})"
+                })
             for channel in guild_obj.text_channels:
                 server_channels.append({
                     'id': str(channel.id),
@@ -360,7 +356,7 @@ def dashboard():
         user_id=user_id, 
         guilds=guilds, 
         selected_guild_id=selected_guild_id,
-        server_members=server_members,
+        server_entities=server_entities,
         server_channels=server_channels,
         server_roles=server_roles,
         current_config=current_config
@@ -445,11 +441,9 @@ def update_config():
     antinuke_val = request.form.get('antinuke_toggle', 'true').lower() == 'true'
     system_active_val = request.form.get('system_active', 'true').lower() == 'true'
     
-    selected_member_id = request.form.get('whitelist_member', '').strip()
+    selected_entity_id = request.form.get('whitelist_entity', '').strip()
+    selected_perms = request.form.getlist('perms')
     action_type = request.form.get('action_type', 'add').strip()
-    
-    allow_everyone_val = request.form.get('allow_everyone', 'true').lower() == 'true'
-    allow_roles_val = request.form.get('allow_roles', 'true').lower() == 'true'
     
     ping_toggle_val = request.form.get('ping_toggle', 'false').lower() == 'true'
     ping_channel_id = request.form.get('ping_channel_id', '').strip()
@@ -477,18 +471,21 @@ def update_config():
         g_data["antinuke"] = antinuke_val
         g_data["active"] = system_active_val
         g_data["ping_enabled"] = ping_toggle_val
-        g_data["allow_everyone"] = allow_everyone_val
-        g_data["allow_roles"] = allow_roles_val
         
-        # মেম্বার সিলেক্ট করে হোয়াইটলিস্টে যোগ বা বাদ দেওয়ার লজিক
-        if selected_member_id.isdigit():
-            m_id_int = int(selected_member_id)
+        if selected_entity_id.isdigit():
+            e_id_int = int(selected_entity_id)
             if action_type == 'add':
-                if m_id_int not in g_data["whitelist"]:
-                    g_data["whitelist"].append(m_id_int)
+                if "permissions_map" not in g_data:
+                    g_data["permissions_map"] = {}
+                g_data["permissions_map"][str(e_id_int)] = selected_perms
+                
+                if e_id_int not in g_data["whitelist"]:
+                    g_data["whitelist"].append(e_id_int)
             elif action_type == 'remove':
-                if m_id_int in g_data["whitelist"]:
-                    g_data["whitelist"].remove(m_id_int)
+                if "permissions_map" in g_data and str(e_id_int) in g_data["permissions_map"]:
+                    del g_data["permissions_map"][str(e_id_int)]
+                if e_id_int in g_data["whitelist"]:
+                    g_data["whitelist"].remove(e_id_int)
             
         if ping_channel_id.isdigit():
             g_data["ping_channel_id"] = int(ping_channel_id)
@@ -526,8 +523,7 @@ def load_server_config(guild_id):
         "prefix": "!",
         "antinuke": True,
         "whitelist": [],
-        "allow_everyone": True,
-        "allow_roles": True,
+        "permissions_map": {},
         "ping_enabled": False,
         "ping_channel_id": None,
         "ping_role_id": None
@@ -549,14 +545,25 @@ def get_prefix(bot, message):
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_prefix, intents=intents, help_command=None)
 
-# পারমিশন চেকার ফাংশন
-def is_authorized(ctx):
+# নির্দিষ্ট পার미শন চেক করার ফাংশন
+def check_permission(ctx, required_perm):
     if not ctx.guild:
         return False
     if ctx.author.id == OWNER_ID or ctx.author.id == ctx.guild.owner_id:
         return True
-    g_data = load_server_config(str(ctx.guild.id))
-    return ctx.author.id in g_data.get("whitelist", [])
+    
+    guild_id = str(ctx.guild.id)
+    g_data = load_server_config(guild_id)
+    whitelist = g_data.get("whitelist", [])
+    if ctx.author.id not in whitelist:
+        return False
+    
+    perms_map = g_data.get("permissions_map", {})
+    user_perms = perms_map.get(str(ctx.author.id), [])
+    
+    if "administrator" in user_perms:
+        return True
+    return required_perm in user_perms
 
 @tasks.loop(minutes=10)
 async def uptime_keep_alive_ping():
@@ -580,7 +587,7 @@ async def uptime_keep_alive_ping():
 async def before_uptime_ping():
     await bot.wait_until_ready()
 
-# --- অ্যান্টি-নিউক ডিফেন্স ইভেন্ট ও মেনশন রেস্ট্রিকশন লগার ---
+# --- মেনশন ও অ্যান্টি-নিউক রেস্ট্রিকশন লগার ---
 @bot.event
 async def on_message(message):
     if message.author.bot or not message.guild:
@@ -591,24 +598,31 @@ async def on_message(message):
     
     if g_data.get("active", True):
         # @everyone মেনশন রেস্ট্রিকশন চেক
-        if not g_data.get("allow_everyone", True) and ("@everyone" in message.content or "@here" in message.content):
-            if not message.author.guild_permissions.administrator and message.author.id != OWNER_ID:
-                try:
-                    await message.delete()
-                    await message.channel.send(f"⚠️ {message.author.mention}, এই সার্ভারে `@everyone` মেনশন করার অনুমতি নেই!", delete_after=5)
-                    return
-                except Exception:
-                    pass
+        perms_map = g_data.get("permissions_map", {})
+        user_perms = perms_map.get(str(message.author.id), [])
+        
+        has_everyone_perm = "administrator" in user_perms or "mention_everyone" in user_perms
+        if not has_everyone_perm and message.author.id != OWNER_ID and message.author.id != message.guild.owner_id:
+            if "@everyone" in message.content or "@here" in message.content:
+                if not message.author.guild_permissions.administrator:
+                    try:
+                        await message.delete()
+                        await message.channel.send(f"⚠️ {message.author.mention}, এই সার্ভারে `@everyone` মেনশন করার অনুমতি নেই!", delete_after=5)
+                        return
+                    except Exception:
+                        pass
 
         # রোল মেনশন রেস্ট্রিকশন চেক
-        if not g_data.get("allow_roles", True) and len(message.role_mentions) > 0:
-            if not message.author.guild_permissions.administrator and message.author.id != OWNER_ID:
-                try:
-                    await message.delete()
-                    await message.channel.send(f"⚠️ {message.author.mention}, এই সার্ভারে রোল মেনশন করার অনুমতি নেই!", delete_after=5)
-                    return
-                except Exception:
-                    pass
+        has_role_perm = "administrator" in user_perms or "mention_roles" in user_perms
+        if not has_role_perm and len(message.role_mentions) > 0:
+            if message.author.id != OWNER_ID and message.author.id != message.guild.owner_id:
+                if not message.author.guild_permissions.administrator:
+                    try:
+                        await message.delete()
+                        await message.channel.send(f"⚠️ {message.author.mention}, এই সার্ভারে রোল মেনশন করার অনুমতি নেই!", delete_after=5)
+                        return
+                    except Exception:
+                        pass
 
     await bot.process_commands(message)
 
@@ -631,8 +645,8 @@ async def on_guild_channel_delete(channel):
 # --- ১. কিক, ব্যান ও টাইমআউট কমান্ড ---
 @bot.command(name="kick")
 async def kick_command(ctx, member: discord.Member, *, reason=None):
-    if not is_authorized(ctx):
-        await ctx.send("❌ আপনার এই কমান্ডটি চালানোর অনুমতি নেই (হোয়াইটলিস্টে নেই)।")
+    if not check_permission(ctx, "kick_members"):
+        await ctx.send("❌ আপনার এই `kick_members` পারমিশন বা হোয়াইটলিস্ট নেই।")
         return
     try:
         await member.kick(reason=reason)
@@ -642,8 +656,8 @@ async def kick_command(ctx, member: discord.Member, *, reason=None):
 
 @bot.command(name="ban")
 async def ban_command(ctx, member: discord.Member, *, reason=None):
-    if not is_authorized(ctx):
-        await ctx.send("❌ আপনার এই ব্যান কমান্ডটি চালানোর অনুমতি নেই।")
+    if not check_permission(ctx, "ban_members"):
+        await ctx.send("❌ আপনার এই `ban_members` পারমিশন বা হোয়াইটলিস্ট নেই।")
         return
     try:
         await member.ban(reason=reason)
@@ -653,8 +667,8 @@ async def ban_command(ctx, member: discord.Member, *, reason=None):
 
 @bot.command(name="timeout", aliases=["mute"])
 async def timeout_command(ctx, member: discord.Member, minutes: int, *, reason=None):
-    if not is_authorized(ctx):
-        await ctx.send("❌ আপনার এই টাইমআউট কমান্ডটি চালানোর অনুমতি নেই।")
+    if not check_permission(ctx, "timeout_members"):
+        await ctx.send("❌ আপনার এই `timeout_members` পারমিশন বা হোয়াইটলিস্ট নেই।")
         return
     try:
         duration = timedelta(minutes=minutes)
@@ -663,11 +677,11 @@ async def timeout_command(ctx, member: discord.Member, minutes: int, *, reason=N
     except Exception as e:
         await ctx.send(f"❌ টাইমআউট দিতে সমস্যা হয়েছে: {e}")
 
-# --- ২. ভয়েস কন্ট্রোল কমান্ড (Server Mute, Unmute, Deafen) ---
+# --- ২. ভয়েস কন্ট্রোল কমান্ড ---
 @bot.command(name="vcmute")
 async def vcmute_command(ctx, member: discord.Member, *, reason=None):
-    if not is_authorized(ctx):
-        await ctx.send("❌ আপনার ভয়েস মিউট করার অনুমতি নেই।")
+    if not check_permission(ctx, "vc_mute"):
+        await ctx.send("❌ আপনার এই `vc_mute` পারমিশন নেই।")
         return
     try:
         await member.edit(mute=True, reason=reason)
@@ -677,8 +691,8 @@ async def vcmute_command(ctx, member: discord.Member, *, reason=None):
 
 @bot.command(name="vcunmute")
 async def vcunmute_command(ctx, member: discord.Member, *, reason=None):
-    if not is_authorized(ctx):
-        await ctx.send("❌ আপনার ভয়েস আনমিউট করার অনুমতি নেই।")
+    if not check_permission(ctx, "vc_unmute"):
+        await ctx.send("❌ আপনার এই `vc_unmute` পারমিশন নেই।")
         return
     try:
         await member.edit(mute=False, reason=reason)
@@ -688,8 +702,8 @@ async def vcunmute_command(ctx, member: discord.Member, *, reason=None):
 
 @bot.command(name="vcdeafen")
 async def vcdeafen_command(ctx, member: discord.Member, *, reason=None):
-    if not is_authorized(ctx):
-        await ctx.send("❌ আপনার ডিফেন (Deafen) করার অনুমতি নেই।")
+    if not check_permission(ctx, "vc_deafen"):
+        await ctx.send("❌ আপনার এই `vc_deafen` পারমিশন নেই।")
         return
     try:
         await member.edit(deafen=True, reason=reason)
@@ -700,7 +714,7 @@ async def vcdeafen_command(ctx, member: discord.Member, *, reason=None):
 # --- ৩. সিস্টেম অন/অফ কন্ট্রোল ---
 @bot.command(name="on", aliases=["start", "enable"])
 async def system_on(ctx):
-    if not is_authorized(ctx):
+    if not check_permission(ctx, "manage_server"):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
@@ -710,7 +724,7 @@ async def system_on(ctx):
 
 @bot.command(name="off", aliases=["stop", "disable"])
 async def system_off(ctx):
-    if not is_authorized(ctx):
+    if not check_permission(ctx, "manage_server"):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
@@ -721,7 +735,7 @@ async def system_off(ctx):
 @bot.command(name="help", aliases=["commands", "panel"])
 async def help_command(ctx):
     prefix = get_prefix(bot, ctx.message)
-    embed = discord.Embed(title="🛡️ Adda_Zone Security & Voice Command Hub", description=f"Prefix: `{prefix}`", color=353942)
+    embed = discord.Embed(title="🛡️ Adda_Zone Security & Permission Hub", description=f"Prefix: `{prefix}`", color=353942)
     embed.add_field(name="Moderation Commands", value=f"`{prefix}kick @user`, `{prefix}ban @user`, `{prefix}timeout @user [minutes]`", inline=False)
     embed.add_field(name="Voice Controls", value=f"`{prefix}vcmute @user`, `{prefix}vcunmute @user`, `{prefix}vcdeafen @user`", inline=False)
     embed.add_field(name="System Controls", value=f"`{prefix}on` / `{prefix}off`, `{prefix}ping`", inline=False)
