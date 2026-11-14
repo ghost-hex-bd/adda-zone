@@ -25,7 +25,7 @@ DASHBOARD_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XIERON • Security Command Bridge</title>
+    <title>Adda_Zone • Security Control Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -78,13 +78,13 @@ DASHBOARD_HTML = """
                     <option value="bn">বাংলা</option>
                 </select>
             </div>
-            <h1 id="t_title">🛡️ XIERON · Autonomous Sentinel Bridge</h1>
-            <p class="subtitle" id="t_subtitle">Real-time Telemetry, Threat Firewall & Operational Controls</p>
+            <h1 id="t_title">🛡️ Adda_Zone Security Hub</h1>
+            <p class="subtitle" id="t_subtitle">Official Anti-Nuke & Server Management Panel</p>
         </div>
         
         {% if not logged_in %}
         <div class="login-box">
-            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;" id="t_login_desc">Secure authentication required to access server telemetry and security grids.</p>
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;" id="t_login_desc">Secure authentication required to access server management controls.</p>
             <a href="/login" class="discord-btn" id="t_login_btn">
                 <svg width="22" height="17" fill="currentColor" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.15c2.65-27.28-4.52-51.19-19.49-72.1M42.45,65.69C36.18,65.69,31,60,31,53s5.18-12.72,11.45-12.72S53.9,46,53.88,53s-5.18,12.69-11.43,12.69m42.24,0C78.41,65.69,73.2,60,73.2,53s5.18-12.72,11.45-12.72S96.13,46,96.11,53s-5.18,12.69-11.42,12.69"/></svg>
                 Login with Discord / ডিসকর্ড দিয়ে লগইন করুন
@@ -97,27 +97,27 @@ DASHBOARD_HTML = """
             </div>
 
             <div class="form-section">
-                <div class="section-title" id="t_sec_servers">🌐 Protected Hubs & Available Guilds</div>
+                <div class="section-title" id="t_sec_servers">🌐 Protected Servers & Managed Hubs</div>
                 <div class="server-grid">
                     {% if guilds %}
                         {% for g in guilds %}
                         <div class="server-card">
                             <h3>{{ g.name }}</h3>
                             <p>ID: {{ g.id }}</p>
-                            <span style="color: #38bdf8; font-size: 11px; font-weight: 600;">⚡ Sentinel Armed</span>
+                            <span style="color: #38bdf8; font-size: 11px; font-weight: 600;">⚡ Adda_Zone Protected</span>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p style="color: var(--text-muted); font-size: 13px;">No mutual managed servers found where bot is installed.</p>
+                        <p style="color: var(--text-muted); font-size: 13px;">No mutual managed servers found where Adda_Zone is installed.</p>
                     {% endif %}
                 </div>
             </div>
             
             <form method="POST" action="/update">
                 <div class="form-section">
-                    <div class="section-title" id="t_sec1_title">🔒 Server Security Telemetry & Defenses</div>
+                    <div class="section-title" id="t_sec1_title">🔒 Server Security & Anti-Nuke Control</div>
                     <div class="form-group">
-                        <label for="guild_id" id="t_lbl_guild">Select Authorized Guild *</label>
+                        <label for="guild_id" id="t_lbl_guild">Select Target Server *</label>
                         <select id="guild_id" name="guild_id" required>
                             {% if guilds %}
                                 {% for g in guilds %}
@@ -130,29 +130,29 @@ DASHBOARD_HTML = """
                     </div>
 
                     <div class="form-group">
-                        <label for="antinuke_toggle" id="t_lbl_antinuke">Anti-Nuke Protection Matrix</label>
+                        <label for="antinuke_toggle" id="t_lbl_antinuke">Anti-Nuke Protection (ON / OFF)</label>
                         <select id="antinuke_toggle" name="antinuke_toggle">
-                            <option value="true" id="t_opt_ani_on">🛡️ Anti-Nuke Armed (Optimal)</option>
-                            <option value="false" id="t_opt_ani_off">⚠️ Anti-Nuke Disarmed</option>
+                            <option value="true" id="t_opt_ani_on">🛡️ Anti-Nuke ON (Protected)</option>
+                            <option value="false" id="t_opt_ani_off">⚠️ Anti-Nuke OFF (Unprotected)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="system_active" id="t_lbl_sys_status">Autonomous Sentinel Core</label>
+                        <label for="system_active" id="t_lbl_sys_status">Bot Core Status (Active / Standby)</label>
                         <select id="system_active" name="system_active">
-                            <option value="true" id="t_opt_sys_on">🟢 Fully Activated (Online)</option>
-                            <option value="false" id="t_opt_sys_off">🔴 Standby / Offline</option>
+                            <option value="true" id="t_opt_sys_on">🟢 Fully Activated (ON)</option>
+                            <option value="false" id="t_opt_sys_off">🔴 Standby / Deactivated (OFF)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <div class="section-title" id="t_sec2_title">⏰ 24/7 Keep-Alive Uptime Telemetry</div>
+                    <div class="section-title" id="t_sec2_title">⏰ 24/7 Keep-Alive Auto-Ping Settings</div>
                     <div class="form-group">
-                        <label for="ping_toggle" id="t_lbl_ping_toggle">Auto-Ping Switch</label>
+                        <label for="ping_toggle" id="t_lbl_ping_toggle">Auto-Ping Switch (Enable / Disable)</label>
                         <select id="ping_toggle" name="ping_toggle">
-                            <option value="true" id="t_opt_ping_on">🟢 Enable Shard Ping (Active)</option>
-                            <option value="false" id="t_opt_ping_off">🔴 Disable Shard Ping (Off)</option>
+                            <option value="true" id="t_opt_ping_on">🟢 Enable Auto-Ping (Active)</option>
+                            <option value="false" id="t_opt_ping_off">🔴 Disable Auto-Ping (Off)</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -165,66 +165,66 @@ DASHBOARD_HTML = """
                     </div>
                 </div>
 
-                <button type="submit" class="submit-btn" id="t_btn_submit">Commit Telemetry Changes</button>
+                <button type="submit" class="submit-btn" id="t_btn_submit">Commit Changes</button>
             </form>
             <div style="text-align: center; margin-top: 15px;">
-                <a href="/logout" style="color: #ef4444; font-size: 13px; text-decoration: none;" id="t_logout">Terminate Session / Logout</a>
+                <a href="/logout" style="color: #ef4444; font-size: 13px; text-decoration: none;" id="t_logout">Logout / Switch Account</a>
             </div>
         </div>
         {% endif %}
 
         <div class="footer">
-            XIERON Autonomous Security Architecture · Shard #0 Active
+            Adda_Zone Security Architecture • 24/7 Online
         </div>
     </div>
 
     <script>
         const translations = {
             en: {
-                title: "🛡️ XIERON · Autonomous Sentinel Bridge",
-                subtitle: "Real-time Telemetry, Threat Firewall & Operational Controls",
-                login_desc: "Secure authentication required to access server telemetry and security grids.",
+                title: "🛡️ Adda_Zone Security Hub",
+                subtitle: "Official Anti-Nuke & Server Management Panel",
+                login_desc: "Secure authentication required to access server management controls.",
                 login_btn: "Login with Discord",
-                sec_servers: "🌐 Protected Hubs & Available Guilds",
-                sec1_title: "🔒 Server Security Telemetry & Defenses",
-                lbl_guild: "Select Authorized Guild",
-                lbl_antinuke: "Anti-Nuke Protection Matrix",
-                opt_ani_on: "🛡️ Anti-Nuke Armed (Optimal)",
-                opt_ani_off: "⚠️ Anti-Nuke Disarmed",
-                lbl_sys_status: "Autonomous Sentinel Core",
-                opt_sys_on: "🟢 Fully Activated (Online)",
-                opt_sys_off: "🔴 Standby / Offline",
-                sec2_title: "⏰ 24/7 Keep-Alive Uptime Telemetry",
-                lbl_ping_toggle: "Auto-Ping Switch",
-                opt_ping_on: "🟢 Enable Shard Ping (Active)",
-                opt_ping_off: "🔴 Disable Shard Ping (Off)",
+                sec_servers: "🌐 Protected Servers & Managed Hubs",
+                sec1_title: "🔒 Server Security & Anti-Nuke Control",
+                lbl_guild: "Select Target Server",
+                lbl_antinuke: "Anti-Nuke Protection (ON / OFF)",
+                opt_ani_on: "🛡️ Anti-Nuke ON (Protected)",
+                opt_ani_off: "⚠️ Anti-Nuke OFF (Unprotected)",
+                lbl_sys_status: "Bot Core Status (Active / Standby)",
+                opt_sys_on: "🟢 Fully Activated (ON)",
+                opt_sys_off: "🔴 Standby / Deactivated (OFF)",
+                sec2_title: "⏰ 24/7 Keep-Alive Auto-Ping Settings",
+                lbl_ping_toggle: "Auto-Ping Switch (Enable / Disable)",
+                opt_ping_on: "🟢 Enable Auto-Ping (Active)",
+                opt_ping_off: "🔴 Disable Auto-Ping (Off)",
                 lbl_ping_chan: "Target Channel ID",
                 lbl_ping_role: "Target Role ID to Ping",
-                btn_submit: "Commit Telemetry Changes",
-                logout: "Terminate Session / Logout"
+                btn_submit: "Commit Changes",
+                logout: "Logout / Switch Account"
             },
             bn: {
-                title: "🛡️ জিয়েরন · অটোনোমাস সেন্টিনেল ব্রিজ",
-                subtitle: "রিয়েল-টাইম টেলিমেট্রি, থ্রেট ফায়ারওয়াল এবং অপারেশনাল কন্ট্রোল",
-                login_desc: "সার্ভার টেলিমেট্রি এবং সিকিউরিটি গ্রিড অ্যাক্সেস করতে ডিসকর্ড দিয়ে লগইন করুন।",
+                title: "🛡️ অ্যাডাজোন সিকিউরিটি হাব",
+                subtitle: "অফিসিয়াল অ্যান্টি-নিউক ও সার্ভার ম্যানেজমেন্ট প্যানেল",
+                login_desc: "সার্ভার ম্যানেজমেন্ট কন্ট্রোল প্যানেল ব্যবহার করতে ডিসকর্ড দিয়ে লগইন করুন।",
                 login_btn: "ডিসকর্ড দিয়ে লগইন করুন",
-                sec_servers: "🌐 প্রটেক্টেড হাব ও এভেইলেবল গিল্ডসমূহ",
-                sec1_title: "🔒 সার্ভার সিকিউরিটি টেলিমেট্রি ও ডিফেন্স",
-                lbl_guild: "অনুমোদিত সার্ভার সিলেক্ট করুন",
-                lbl_antinuke: "অ্যান্টি-নিউক প্রটেকশন ম্যাট্রিক্স",
-                opt_ani_on: "🛡️ অ্যান্টি-নিউক আর্মেড (Optimal)",
-                opt_ani_off: "⚠️ অ্যান্টি-নিউক ডিসআর্মড",
-                lbl_sys_status: "অটোনোমাস সেন্টিনেল কোর",
-                opt_sys_on: "🟢 পুরোপুরি সচল (Online)",
-                opt_sys_off: "🔴 স্ট্যান্ডবাই / অফলাইন",
-                sec2_title: "⏰ ২৪/৭ সচল রাখার আপটাইম টেলিমেট্রি",
-                lbl_ping_toggle: "অটো-পিং সুইচ",
-                opt_ping_on: "🟢 অটো-পিং চালু (Active)",
-                opt_ping_off: "🔴 অটো-পিং বন্ধ (Off)",
+                sec_servers: "🌐 প্রোটেক্টেড সার্ভার ও ম্যানেজড হাবসমূহ",
+                sec1_title: "🔒 সার্ভার সিকিউরিটি ও অ্যান্টি-নিউক কন্ট্রোল",
+                lbl_guild: "টার্গেট সার্ভার সিলেক্ট করুন",
+                lbl_antinuke: "অ্যান্টি-নিউক প্রটেকশন (ON / OFF)",
+                opt_ani_on: "🛡️ অ্যান্টি-নিউক চালু (Protected)",
+                opt_ani_off: "⚠️ অ্যান্টি-নিউক বন্ধ (Unprotected)",
+                lbl_sys_status: "বট কোরের অবস্থা (সচল/স্ট্যান্ডবাই)",
+                opt_sys_on: "🟢 পুরোপুরি সচল (ON)",
+                opt_sys_off: "🔴 স্ট্যান্ডবাই / বন্ধ (OFF)",
+                sec2_title: "⏰ ২৪/৭ সচল রাখার অটো-পিং সেটিংস",
+                lbl_ping_toggle: "অটো-পিং সুইচ (চালু/বন্ধ)",
+                opt_ping_on: "🟢 অটো-পিং চালু করুন (Active)",
+                opt_ping_off: "🔴 অটো-পিং বন্ধ রাখুন (Off)",
                 lbl_ping_chan: "টার্গেট চ্যানেল আইডি",
                 lbl_ping_role: "পিং করার জন্য টার্গেট রোল আইডি",
-                btn_submit: "টেলিমেট্রি পরিবর্তন সেভ করুন",
-                logout: "সেশন টার্মিনেট / লগআউট করুন"
+                btn_submit: "পরিবর্তন সেভ করুন",
+                logout: "লগআউট / অ্যাকাউন্ট পরিবর্তন করুন"
             }
         };
 
@@ -296,16 +296,26 @@ def callback():
     user_guilds = guilds_r.json()
     
     managed_guilds = []
+    user_discord_id = int(user_data.get('id', 0))
+    is_global_owner = (user_discord_id == OWNER_ID)
+    
     if isinstance(user_guilds, list):
         for g in user_guilds:
             permissions = int(g.get('permissions', 0))
             is_owner = g.get('owner', False)
             has_admin = (permissions & 0x8) == 0x8
+            g_id = int(g.get('id'))
             
-            # গ্লোবাল ওনার অথবা সার্ভারের ওনার/অ্যাডমিন হলে লিস্টে যুক্ত হবে
-            if is_owner or has_admin or int(user_data.get('id', 0)) == OWNER_ID:
+            bot_in_guild = bot.get_guild(g_id) is not None
+            
+            if is_global_owner and bot_in_guild:
                 managed_guilds.append({
-                    'id': str(g.get('id')),
+                    'id': str(g_id),
+                    'name': g.get('name', 'Unknown Server')
+                })
+            elif not is_global_owner and (is_owner or has_admin) and bot_in_guild:
+                managed_guilds.append({
+                    'id': str(g_id),
                     'name': g.get('name', 'Unknown Server')
                 })
 
@@ -426,7 +436,7 @@ async def uptime_keep_alive_ping():
                 channel = guild.get_channel(channel_id)
                 role = guild.get_role(role_id)
                 if channel and role:
-                    await channel.send(f"🛡️ **[24/7 Uptime Shard Signal]** Keep-Alive active. {role.mention}")
+                    await channel.send(f"🛡️ **[Adda_Zone Uptime Signal]** Keep-Alive active check. {role.mention}")
         except Exception as e:
             print(f"[UPTIME PING ERROR] Guild {guild.name}: {e}")
 
@@ -440,7 +450,7 @@ async def on_guild_channel_create(channel):
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True) or not g_data.get("antinuke", True):
         return
-    print(f"[ANTINUKE] Channel created firewall alert in {channel.guild.name}: {channel.name}")
+    print(f"[Adda_Zone ANTINUKE] Channel created in {channel.guild.name}: {channel.name}")
 
 @bot.event
 async def on_guild_channel_delete(channel):
@@ -448,7 +458,7 @@ async def on_guild_channel_delete(channel):
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True) or not g_data.get("antinuke", True):
         return
-    print(f"[ANTINUKE] Channel deletion firewall alert in {channel.guild.name}: {channel.name}")
+    print(f"[Adda_Zone ANTINUKE] Channel deleted in {channel.guild.name}: {channel.name}")
 
 @bot.command(name="kick")
 @commands.has_permissions(kick_members=True)
@@ -456,7 +466,7 @@ async def kick_command(ctx, member: discord.Member, *, reason=None):
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True):
-        await ctx.send("⚠️ সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
+        await ctx.send("⚠️ Adda_Zone সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
         return
     try:
         await member.kick(reason=reason)
@@ -470,7 +480,7 @@ async def ban_command(ctx, member: discord.Member, *, reason=None):
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True):
-        await ctx.send("⚠️ সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
+        await ctx.send("⚠️ Adda_Zone সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
         return
     try:
         await member.ban(reason=reason)
@@ -484,7 +494,7 @@ async def timeout_command(ctx, member: discord.Member, minutes: int, *, reason=N
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True):
-        await ctx.send("⚠️ সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
+        await ctx.send("⚠️ Adda_Zone সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
         return
     try:
         duration = timedelta(minutes=minutes)
@@ -501,7 +511,7 @@ async def system_on(ctx):
     g_data = load_server_config(guild_id)
     g_data["active"] = True
     save_server_config(guild_id, g_data)
-    await ctx.send("🟢 **XIERON Sentinel Core Fully Activated**")
+    await ctx.send("🟢 **Adda_Zone Security Core Fully Activated**")
 
 @bot.command(name="off", aliases=["stop", "disable"])
 async def system_off(ctx):
@@ -510,21 +520,20 @@ async def system_off(ctx):
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     g_data["active"] = False
-    save_server_config(guild_id, data) # Fixed logic
     save_server_config(guild_id, g_data)
-    await ctx.send("🔴 **XIERON Sentinel Core Deactivated**")
+    await ctx.send("🔴 **Adda_Zone Security Core Deactivated**")
 
 @bot.command(name="help", aliases=["commands", "panel"])
 async def help_command(ctx):
     prefix = get_prefix(bot, ctx.message)
-    embed = discord.Embed(title="🛡️ XIERON Sentinel Command Bridge", description=f"Prefix: `{prefix}`", color=353942)
-    embed.add_field(name="Moderation Telemetry", value=f"`{prefix}kick @user`, `{prefix}ban @user`, `{prefix}timeout @user [minutes]`", inline=False)
-    embed.add_field(name="Core Operations", value=f"`{prefix}on` / `{prefix}off`, `{prefix}ping`", inline=False)
+    embed = discord.Embed(title="🛡️ Adda_Zone Security Commands", description=f"Prefix: `{prefix}`", color=353942)
+    embed.add_field(name="Moderation Commands", value=f"`{prefix}kick @user`, `{prefix}ban @user`, `{prefix}timeout @user [minutes]`", inline=False)
+    embed.add_field(name="System Controls", value=f"`{prefix}on` / `{prefix}off`, `{prefix}ping`", inline=False)
     await ctx.send(embed=embed)
 
 @bot.command(name="ping")
 async def ping(ctx):
-    await ctx.send(f"⚡ Gateway Telemetry Latency: {round(bot.latency * 1000)}ms (Shard #0 Active)")
+    await ctx.send(f"⚡ Adda_Zone Latency: {round(bot.latency * 1000)}ms")
 
 @bot.event
 async def on_message(message):
