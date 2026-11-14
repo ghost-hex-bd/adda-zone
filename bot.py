@@ -7,9 +7,9 @@ import discord
 from discord.ext import commands, tasks
 from flask import Flask, render_template_string, request, redirect, url_for
 
-# --- 1. PREMIUM BILINGUAL WEB DASHBOARD & RENDER KEEP-ALIVE SERVER ---
+# --- 1. ENTERPRISE WEB DASHBOARD (HIDDEN GLOBAL OWNER & DUAL-LEVEL PERMISSIONS) ---
 app = Flask('')
-app.secret_key = "adda_zone_secure_dashboard_key_v11"
+app.secret_key = "adda_zone_secure_dashboard_key_v12"
 data_lock = threading.Lock()
 
 DASHBOARD_HTML = """
@@ -18,7 +18,7 @@ DASHBOARD_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adda_Zone Security • Enterprise Secure Hub</title>
+    <title>Adda_Zone Security • Server Management Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -30,7 +30,7 @@ DASHBOARD_HTML = """
             --text-muted: #9ca3af;
         }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 800px; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); }
+        .container { width: 100%; max-width: 850px; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); }
         .header { text-align: center; margin-bottom: 30px; position: relative; }
         h1 { color: #38bdf8; margin: 0 0 8px 0; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
         p.subtitle { color: var(--text-muted); margin: 0; font-size: 14px; font-weight: 400; }
@@ -67,7 +67,7 @@ DASHBOARD_HTML = """
                 </select>
             </div>
             <h1 id="t_title">🛡️ Adda_Zone Security Hub</h1>
-            <p class="subtitle" id="t_subtitle">Multi-Server Isolated & Whitelist Protected • v11.0</p>
+            <p class="subtitle" id="t_subtitle">Server Owner Protected Dashboard • v12.0</p>
         </div>
         
         <div class="status-box">
@@ -76,7 +76,7 @@ DASHBOARD_HTML = """
                 <div style="font-size: 14px; font-weight: 600; margin-top: 2px;">Render Cloud Engine</div>
             </div>
             <div class="status-badge">
-                <div class="dot"></div> <span id="t_runtime_status">ONLINE & WHITELIST SECURED</span>
+                <div class="dot"></div> <span id="t_runtime_status">ONLINE & SECURED</span>
             </div>
         </div>
 
@@ -84,7 +84,7 @@ DASHBOARD_HTML = """
             <div class="form-section">
                 <div class="section-title" id="t_sec1_title">🔒 Owner Authentication & Server Core</div>
                 <div class="form-group">
-                    <label for="admin_user_id" id="t_lbl_admin">Your Discord User ID (Global Owner / Server Owner) *</label>
+                    <label for="admin_user_id" id="t_lbl_admin">Your Discord User ID *</label>
                     <input type="text" id="admin_user_id" name="admin_user_id" placeholder="Enter your Discord User ID" required>
                 </div>
                 <div class="form-group">
@@ -93,19 +93,27 @@ DASHBOARD_HTML = """
                 </div>
 
                 <div class="form-group">
-                    <label for="command_name" id="t_lbl_cmd">Select Command / Feature Privilege</label>
-                    <select id="command_name" name="command_name">
-                        <option value="kick">Kick Command Access (Whitelist)</option>
-                        <option value="ban">Ban Command Access (Whitelist)</option>
-                        <option value="timeout">Timeout Command Access (Whitelist)</option>
-                        <option value="antinuke">Anti-Nuke Toggle Access (Whitelist)</option>
-                        <option value="setprefix">Prefix Change Access (Whitelist)</option>
-                        <option value="everyone_ping">Mass Ping / Role Ping Access (Whitelist)</option>
+                    <label for="action_type" id="t_lbl_action">Action Type</label>
+                    <select id="action_type" name="action_type">
+                        <option value="grant">Grant / Add Permission (whitelist)</option>
+                        <option value="revoke">Revoke / Remove Permission</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="user_id" id="t_lbl_target_user">Discord User ID to Whitelist / Authorize</label>
+                    <label for="command_name" id="t_lbl_cmd">Select Command / Feature Privilege</label>
+                    <select id="command_name" name="command_name">
+                        <option value="kick">Kick Command Access</option>
+                        <option value="ban">Ban Command Access</option>
+                        <option value="timeout">Timeout Command Access</option>
+                        <option value="antinuke">Anti-Nuke Toggle Access</option>
+                        <option value="setprefix">Prefix Change Access</option>
+                        <option value="everyone_ping">Mass Ping / Role Ping Access</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_id" id="t_lbl_target_user">Target User ID (To Grant or Revoke)</label>
                     <input type="text" id="user_id" name="user_id" placeholder="e.g. 987654321098765432">
                 </div>
 
@@ -137,7 +145,7 @@ DASHBOARD_HTML = """
                 </div>
             </div>
 
-            <button type="submit" id="t_btn_submit">Verify Owner & Commit Changes</button>
+            <button type="submit" id="t_btn_submit">Verify & Commit Changes</button>
         </form>
 
         <div class="footer">
@@ -149,14 +157,15 @@ DASHBOARD_HTML = """
         const translations = {
             en: {
                 title: "🛡️ Adda_Zone Security Hub",
-                subtitle: "Multi-Server Isolated & Whitelist Protected • v11.0",
+                subtitle: "Server Owner Protected Dashboard • v12.0",
                 runtime_title: "System Runtime",
-                runtime_status: "ONLINE & WHITELIST SECURED",
+                runtime_status: "ONLINE & SECURED",
                 sec1_title: "🔒 Owner Authentication & Server Core",
-                lbl_admin: "Your Discord User ID (Global Owner / Server Owner) *",
+                lbl_admin: "Your Discord User ID *",
                 lbl_guild: "Target Server ID (Guild ID) *",
+                lbl_action: "Action Type",
                 lbl_cmd: "Select Command / Feature Privilege",
-                lbl_target_user: "Discord User ID to Whitelist / Authorize",
+                lbl_target_user: "Target User ID (To Grant or Revoke)",
                 lbl_sys_status: "System Core Status",
                 opt_sys_on: "🟢 Fully Activated (ON)",
                 opt_sys_off: "🔴 Standby / Deactivated (OFF)",
@@ -166,18 +175,19 @@ DASHBOARD_HTML = """
                 opt_ping_off: "🔴 Disable Auto-Ping (Off)",
                 lbl_ping_chan: "Keep-Alive Target Channel ID",
                 lbl_ping_role: "Keep-Alive Target Role ID to Ping",
-                btn_submit: "Verify Owner & Commit Changes"
+                btn_submit: "Verify & Commit Changes"
             },
             bn: {
                 title: "🛡️ আড্ডা জোন সিকিউরিটি হাব",
-                subtitle: "মাল্টি-সার্ভার আইসোলেটেড ও হোয়াইটলিস্ট প্রটেক্টেড • v১১.০",
+                subtitle: "সার্ভার ওনার প্রটেক্টেড ড্যাশবোর্ড • v১২.০",
                 runtime_title: "সিস্টেম রানিং অবস্থা",
-                runtime_status: "অনলাইন ও হোয়াইটলিস্ট সুরক্ষিত",
+                runtime_status: "অনলাইন ও সুরক্ষিত",
                 sec1_title: "🔒 ওনার অথেন্টিকেশন ও সার্ভার কোর",
-                lbl_admin: "আপনার ডিসকর্ড ইউজার আইডি (গ্লোবাল ওনার / সার্ভার ওনার) *",
+                lbl_admin: "আপনার ডিসকর্ড ইউজার আইডি *",
                 lbl_guild: "টার্গেট সার্ভার আইডি (গিল্ড আইডি) *",
+                lbl_action: "কাজের ধরণ (পারমিশন দেওয়া বা তুলে নেওয়া)",
                 lbl_cmd: "কমান্ড বা ফিচারের পারমিশন সিলেক্ট করুন",
-                lbl_target_user: "হোয়াইটলিস্ট করার জন্য ডিসকর্ড ইউজার আইডি",
+                lbl_target_user: "টার্গেট ইউজার আইডি (যার পারমিশন পরিবর্তন হবে)",
                 lbl_sys_status: "সিস্টেম কোরের অবস্থা",
                 opt_sys_on: "🟢 পুরোপুরি সচল (ON)",
                 opt_sys_off: "🔴 স্ট্যান্ডবাই / বন্ধ (OFF)",
@@ -187,7 +197,7 @@ DASHBOARD_HTML = """
                 opt_ping_off: "🔴 অটো-পিং বন্ধ রাখুন (Off)",
                 lbl_ping_chan: "অটো-পিং পাঠানোর টার্গেট চ্যানেল আইডি",
                 lbl_ping_role: "পিং করার জন্য টার্গেট রোল আইডি",
-                btn_submit: "ওনার ভেরিফাই করুন এবং পরিবর্তন সেভ করুন"
+                btn_submit: "ভেরিফাই করুন এবং পরিবর্তন সেভ করুন"
             }
         };
 
@@ -202,6 +212,7 @@ DASHBOARD_HTML = """
             document.getElementById('t_sec1_title').innerText = t.sec1_title;
             document.getElementById('t_lbl_admin').innerText = t.lbl_admin;
             document.getElementById('t_lbl_guild').innerText = t.lbl_guild;
+            document.getElementById('t_lbl_action').innerText = t.lbl_action;
             document.getElementById('t_lbl_cmd').innerText = t.lbl_cmd;
             document.getElementById('t_lbl_target_user').innerText = t.lbl_target_user;
             document.getElementById('t_lbl_sys_status').innerText = t.lbl_sys_status;
@@ -228,6 +239,7 @@ def dashboard():
 def update_config():
     admin_user_id = request.form.get('admin_user_id', '').strip()
     guild_id = request.form.get('guild_id', '').strip()
+    action_type = request.form.get('action_type', 'grant').strip()
     command_name = request.form.get('command_name', '').strip()
     user_id = request.form.get('user_id', '').strip()
     system_active_val = request.form.get('system_active', 'true').lower() == 'true'
@@ -250,11 +262,23 @@ def update_config():
     if guild_obj and guild_obj.owner_id == uid_admin:
         is_server_owner = True
 
-    if not (is_global or is_server_owner):
+    g_data_temp = load_server_config(guild_id)
+    permission_managers = g_data_temp.get("permission_managers", [])
+    is_manager = uid_admin in permission_managers
+
+    if not (is_global or is_server_owner or is_manager):
         return redirect(url_for('dashboard'))
 
     with data_lock:
         g_data = load_server_config(guild_id)
+        
+        if user_id.isdigit():
+            target_uid = int(user_id)
+            if guild_obj and target_uid == guild_obj.owner_id:
+                return redirect(url_for('dashboard'))
+            if target_uid == global_config.get("owner_id", 0):
+                return redirect(url_for('dashboard'))
+
         g_data["active"] = system_active_val
         g_data["ping_enabled"] = ping_toggle_val
         
@@ -266,8 +290,12 @@ def update_config():
         if user_id.isdigit() and command_name:
             uid = int(user_id)
             if command_name in g_data["command_permissions"]:
-                if uid not in g_data["command_permissions"][command_name]:
-                    g_data["command_permissions"][command_name].append(uid)
+                if action_type == "grant":
+                    if uid not in g_data["command_permissions"][command_name]:
+                        g_data["command_permissions"][command_name].append(uid)
+                elif action_type == "revoke":
+                    if uid in g_data["command_permissions"][command_name]:
+                        g_data["command_permissions"][command_name].remove(uid)
         
         save_server_config(guild_id, g_data)
         
@@ -295,9 +323,6 @@ def load_global_config():
     owner_id_input = os.environ.get('OWNER_ID', '0')
     
     if not token:
-        print("==========================================")
-        print("   ADDA_ZONE SECURITY BOT - FIRST SETUP")
-        print("==========================================")
         token = input("Enter Bot Token: ").strip()
         owner_id_input = input("Enter Global Owner ID: ").strip()
     
@@ -309,8 +334,6 @@ def load_global_config():
     config = {"token": token, "owner_id": owner_id, "prefix": "!"}
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f, indent=4)
-        
-    print("[SUCCESS] Global configuration saved successfully.\n")
     return config
 
 global_config = load_global_config()
@@ -336,6 +359,7 @@ def load_server_config(guild_id):
         "ping_enabled": False,
         "ping_channel_id": None,
         "ping_role_id": None,
+        "permission_managers": [],
         "command_permissions": {
             "kick": [],
             "ban": [],
@@ -406,7 +430,7 @@ async def uptime_keep_alive_ping():
 async def before_uptime_ping():
     await bot.wait_until_ready()
 
-# --- ISOLATED PROGRESSIVE PUNISHMENT SYSTEM (STRIKES FOR UNAUTHORIZED COMMAND USAGE) ---
+# --- ISOLATED PROGRESSIVE PUNISHMENT SYSTEM ---
 async def apply_progressive_punishment(member, reason_text):
     guild_id = str(member.guild.id)
     user_id = str(member.id)
@@ -430,36 +454,11 @@ async def apply_progressive_punishment(member, reason_text):
     except Exception as e:
         print(f"[PUNISHMENT ERROR] Could not punish user {member.name}: {e}")
 
-# --- STRICT WHITELIST & PERMISSION CHECKER ---
-def is_system_active(guild_id):
-    g_data = load_server_config(guild_id)
-    return g_data.get("active", False)
-
-def has_command_permission(ctx, command_name):
-    if ctx.author.id == global_config["owner_id"]:
-        return True
-    
-    if ctx.guild:
-        if ctx.author.id == ctx.guild.owner_id:
-            return True
-            
-        guild_id = str(ctx.guild.id)
-        g_data = load_server_config(guild_id)
-        cmd_perms = g_data.get("command_permissions", {})
-        allowed_users = cmd_perms.get(command_name, [])
-        
-        if ctx.author.id in allowed_users:
-            return True
-            
-    return False
-
-# গ্লোবাল কমান্ড চেকার: কোনো অননুমোদিত ইউজার কমান্ড ব্যবহার করলে প্রগ্রেসিভ শাস্তি প্রয়োগ হবে
 @bot.check
 async def global_whitelist_check(ctx):
     if not ctx.guild:
         return True
         
-    # গ্লোবাল ওনার এবং সার্ভার ওনারের জন্য ছাড়
     if ctx.author.id == global_config["owner_id"] or ctx.author.id == ctx.guild.owner_id:
         return True
         
@@ -470,9 +469,7 @@ async def global_whitelist_check(ctx):
     cmd_perms = g_data.get("command_permissions", {})
     allowed_users = cmd_perms.get(cmd_name, [])
     
-    # যদি ইউজার নির্দিষ্ট কমান্ডের হোয়াইটলিস্টে না থাকে
     if ctx.author.id not in allowed_users:
-        # হেল্প বা পিং কমান্ড সবার জন্য উন্মুক্ত রাখতে চাইলে রাখতে পারেন, নতুবা সব কমান্ডের জন্য শাস্তি কার্যকর হবে
         if cmd_name in ["ping", "status"]:
             return True
             
@@ -484,18 +481,10 @@ async def global_whitelist_check(ctx):
 @bot.event
 async def on_ready():
     print(f'[ONLINE] Authenticated as {bot.user} (ID: {bot.user.id})')
-    print('[SECURITY] Multi-Server Isolated File Architecture & Strict Whitelist Enforcement Active (v11.0).')
+    print('[SECURITY] Multi-Server Isolated File Architecture & Strict Whitelist Enforcement Active (v12.0).')
     if not uptime_keep_alive_ping.is_running():
         uptime_keep_alive_ping.start()
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="over the network | !help"))
-
-@bot.before_invoke
-async def log_server_activity(ctx):
-    if ctx.guild:
-        print(f"[AUDIT] Command '{ctx.command}' executed in '{ctx.guild.name}' by {ctx.author} ({ctx.author.id})")
-    else:
-        print(f"[AUDIT-DM] Command '{ctx.command}' executed by {ctx.author}")
-
 
 # --- 3. BOT COMMANDS ---
 
@@ -530,55 +519,33 @@ async def system_off(ctx):
     await ctx.send(embed=embed)
 
 @bot.command(name="autoping")
-async def autoping(ctx, action: str = None, param: discord.TextChannel = None):
+async def autoping(ctx, action: str = None):
     if not ctx.guild:
         return
     if ctx.author.id != global_config["owner_id"] and ctx.author.id != ctx.guild.owner_id:
-        await ctx.send("⛔ **Access Denied:** Only the Global Owner or Server Owner can configure Auto-Ping.")
+        await ctx.send("⛔ **Access Denied:** Only the Server Owner can configure Auto-Ping.")
         return
 
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
 
     if not action:
-        embed = discord.Embed(
-            title="⚙️ Auto-Ping Configuration Help",
-            description="Manage your 24/7 keep-alive auto-ping directly via chat.",
-            color=discord.Color.from_rgb(52, 152, 219)
-        )
-        embed.add_field(name="Commands", value="`!autoping on` - Enable Auto-Ping\n`!autoping off` - Disable Auto-Ping\n`!autoping status` - Check current settings", inline=False)
-        await ctx.send(embed=embed)
+        await ctx.send("⚠️ **Syntax Error:** Use `!autoping on` or `!autoping off`.")
         return
 
     act = action.lower()
     if act == "on":
         g_data["ping_enabled"] = True
         save_server_config(guild_id, g_data)
-        await ctx.send("🟢 **Auto-Ping Enabled:** 24/7 keep-alive signal is now active for this server.")
+        await ctx.send("🟢 **Auto-Ping Enabled:** 24/7 keep-alive signal is now active.")
     elif act == "off":
         g_data["ping_enabled"] = False
         save_server_config(guild_id, g_data)
         await ctx.send("🔴 **Auto-Ping Disabled:** 24/7 keep-alive signal has been turned off.")
-    elif act == "status":
-        status_state = "🟢 Active" if g_data.get("ping_enabled", False) else "🔴 Disabled"
-        chan_id = g_data.get("ping_channel_id")
-        role_id = g_data.get("ping_role_id")
-        chan_name = f"<#{chan_id}>" if chan_id else "Not Set"
-        role_name = f"<@&{role_id}>" if role_id else "Not Set"
-        
-        embed = discord.Embed(title="📊 Auto-Ping Status", color=discord.Color.from_rgb(46, 204, 113))
-        embed.add_field(name="Status", value=status_state, inline=False)
-        embed.add_field(name="Target Channel", value=chan_name, inline=True)
-        embed.add_field(name="Target Role", value=role_name, inline=True)
-        await ctx.send(embed=embed)
-    else:
-        await ctx.send("⚠️ **Invalid Syntax:** Use `!autoping` to view usage instructions.")
 
 @bot.command(name="setchannel")
 async def setchannel(ctx, channel: discord.TextChannel):
-    if not ctx.guild:
-        return
-    if ctx.author.id != global_config["owner_id"] and ctx.author.id != ctx.guild.owner_id:
+    if not ctx.guild or (ctx.author.id != global_config["owner_id"] and ctx.author.id != ctx.guild.owner_id):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
@@ -588,9 +555,7 @@ async def setchannel(ctx, channel: discord.TextChannel):
 
 @bot.command(name="setrole")
 async def setrole(ctx, role: discord.Role):
-    if not ctx.guild:
-        return
-    if ctx.author.id != global_config["owner_id"] and ctx.author.id != ctx.guild.owner_id:
+    if not ctx.guild or (ctx.author.id != global_config["owner_id"] and ctx.author.id != ctx.guild.owner_id):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
@@ -600,10 +565,6 @@ async def setrole(ctx, role: discord.Role):
 
 @bot.command(name="help", aliases=["commands", "panel"])
 async def help_command(ctx):
-    if ctx.guild and not is_system_active(ctx.guild.id):
-        if ctx.author.id != global_config["owner_id"] and ctx.author.id != ctx.guild.owner_id:
-            return
-    
     prefix = get_prefix(bot, ctx.message)
     embed = discord.Embed(
         title="🛡️ Isolated Control Center",
@@ -611,9 +572,8 @@ async def help_command(ctx):
         color=discord.Color.from_rgb(35, 39, 42)
     )
     embed.add_field(name="⚙️ Core & Permissions", value=f"`{prefix}on` / `{prefix}off` - System Master Switch\n`{prefix}setprefix` - Modify prefix\n`{prefix}antinuke` - Toggle defense", inline=False)
-    embed.add_field(name="⏰ 24/7 Keep-Alive Control", value=f"`{prefix}autoping on` / `off` - Toggle auto-ping\n`{prefix}setchannel #channel` - Set ping channel\n`{prefix}setrole @role` - Set ping role\n`{prefix}autoping status` - View diagnostics", inline=False)
     embed.add_field(name="⚖️ Granular Moderation", value=f"`{prefix}kick <user>` - Evict member\n`{prefix}ban <user>` - Permanent ban\n`{prefix}timeout <user> <mins>` - Timeout member", inline=False)
-    embed.set_footer(text="Adda_Zone Security Architecture • Version 11.0")
+    embed.set_footer(text="Adda_Zone Security Architecture • Version 12.0")
     await ctx.send(embed=embed)
 
 @bot.command(name="ping")
@@ -630,13 +590,10 @@ async def status(ctx):
     g_data = load_server_config(guild_id)
     sys_state = "🟢 Online (Active)" if g_data.get("active", False) else "🔴 Offline (Standby)"
     latency = round(bot.latency * 1000)
-    server_prefix = g_data.get("prefix", "!")
     
     embed = discord.Embed(title="📊 Isolated Server Diagnostics", description=f"Environment context for **{ctx.guild.name}**", color=discord.Color.from_rgb(52, 152, 219))
     embed.add_field(name="System Status", value=sys_state, inline=False)
-    embed.add_field(name="Prefix", value=f"`{server_prefix}`", inline=True)
-    embed.add_field(name="Latency", value=f"`{latency}ms`", inline=True)
-    embed.set_footer(text="Isolated File Storage Active")
+    embed.add_field(name="Latency", value=f"{latency}ms", inline=True)
     await ctx.send(embed=embed)
 
 @bot.command(name="setprefix")
@@ -647,9 +604,7 @@ async def setprefix(ctx, new_prefix: str):
     g_data = load_server_config(guild_id)
     g_data["prefix"] = new_prefix
     save_server_config(guild_id, g_data)
-    
-    embed = discord.Embed(title="⚙️ Prefix Updated", description=f"New server prefix: **`{new_prefix}`**", color=discord.Color.from_rgb(46, 204, 113))
-    await ctx.send(embed=embed)
+    await ctx.send(f"⚙️ **Prefix Updated:** `{new_prefix}`")
 
 @bot.command(name="antinuke")
 async def antinuke(ctx, mode: str):
@@ -657,150 +612,41 @@ async def antinuke(ctx, mode: str):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
-    
-    if mode.lower() == "on":
-        g_data["antinuke"] = True
-        save_server_config(guild_id, g_data)
-        embed = discord.Embed(title="🛡️ Defense Protocol", description="Anti-Nuke status: **Enabled**", color=discord.Color.from_rgb(46, 204, 113))
-        await ctx.send(embed=embed)
-    elif mode.lower() == "off":
-        g_data["antinuke"] = False
-        save_server_config(guild_id, g_data)
-        embed = discord.Embed(title="⚠️ Defense Protocol", description="Anti-Nuke status: **Disabled**", color=discord.Color.from_rgb(231, 76, 60))
-        await ctx.send(embed=embed)
+    g_data["antinuke"] = (mode.lower() == "on")
+    save_server_config(guild_id, g_data)
+    await ctx.send(f"🛡️ **Anti-Nuke Status:** {mode.upper()}")
 
 @bot.command(name="kick")
 async def kick(ctx, member: discord.Member, *, reason="No reason provided"):
     if not ctx.guild:
         return
-    try:
-        await member.kick(reason=reason)
-        embed = discord.Embed(title="👢 Member Evicted", description=f"Evicted {member.mention}\nReason: `{reason}`", color=discord.Color.from_rgb(231, 76, 60))
-        await ctx.send(embed=embed)
-    except Exception as e:
-        await ctx.send(f"Execution Error: {e}")
+    await member.kick(reason=reason)
+    await ctx.send(f"👢 Evicted {member.mention}")
 
 @bot.command(name="ban")
 async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
     if not ctx.guild:
         return
-    try:
-        await member.ban(reason=reason)
-        embed = discord.Embed(title="🔨 Member Banned", description=f"Banned {member.mention}\nReason: `{reason}`", color=discord.Color.from_rgb(192, 57, 43))
-        await ctx.send(embed=embed)
-    except Exception as e:
-        await ctx.send(f"Execution Error: {e}")
+    await member.ban(reason=reason)
+    await ctx.send(f"🔨 Banned {member.mention}")
 
 @bot.command(name="timeout")
 async def timeout(ctx, member: discord.Member, minutes: int, *, reason="No reason provided"):
     if not ctx.guild:
         return
-    try:
-        duration = timedelta(minutes=minutes)
-        await member.timeout(duration, reason=reason)
-        embed = discord.Embed(title="⏰ Activity Restricted", description=f"Timed out {member.mention} for `{minutes} minutes`.", color=discord.Color.from_rgb(241, 196, 15))
-        await ctx.send(embed=embed)
-    except Exception as e:
-        await ctx.send(f"Execution Error: {e}")
+    await member.timeout(timedelta(minutes=minutes), reason=reason)
+    await ctx.send(f"⏰ Timed out {member.mention}")
 
-
-# --- 4. EVENTS & INTERCEPTORS ---
-
+# --- 4. EVENTS ---
 @bot.event
 async def on_message(message):
     if message.author.bot:
         return
-    
-    try:
-        if message.guild:
-            guild_id = str(message.guild.id)
-            
-            if not is_system_active(guild_id):
-                prefix = get_prefix(bot, message)
-                if not message.content.startswith(prefix + "on"):
-                    return
-            
-            g_data = load_server_config(guild_id)
-            is_global_owner = (message.author.id == global_config["owner_id"])
-            is_guild_owner = (message.author.id == message.guild.owner_id)
-            
-            cmd_perms = g_data.get("command_permissions", {})
-            allowed_pings = cmd_perms.get("everyone_ping", [])
-            is_ping_allowed = (message.author.id in allowed_pings) or message.author.guild_permissions.mention_everyone
-            
-            # --- @everyone বা মাস পিং চেক ---
-            if ("@everyone" in message.content or "@here" in message.content or message.role_mentions) and not (is_global_owner or is_guild_owner or is_ping_allowed):
-                try:
-                    await message.delete()
-                    await apply_progressive_punishment(message.author, "Unauthorized mass ping distribution")
-                    return
-                except:
-                    pass
-
-            # --- লিংক স্প্যাম চেক ---
-            if not (is_global_owner or is_guild_owner or message.author.guild_permissions.administrator):
-                if "http://" in message.content or "https://www.discord.gg" in message.content or "discord.com/invite" in message.content:
-                    try:
-                        await message.delete()
-                        await apply_progressive_punishment(message.author, "Unauthorized link distribution")
-                        return
-                    except:
-                        pass
-    except Exception as e:
-        print(f"[Error] Message interceptor exception: {e}")
-
     await bot.process_commands(message)
 
-@bot.event
-async def on_guild_channel_delete(channel):
-    try:
-        guild_id = str(channel.guild.id)
-        if not is_system_active(guild_id):
-            return
-        g_data = load_server_config(guild_id)
-        if not g_data.get("antinuke", True):
-            return
-        
-        await asyncio.sleep(1.2)
-        async for entry in channel.guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_delete):
-            user = entry.user
-            if not user or user.id == bot.user.id or user.id == global_config["owner_id"] or user.id == channel.guild.owner_id:
-                return
-            
-            member = channel.guild.get_member(user.id)
-            if member:
-                try:
-                    await member.ban(reason="Anti-Nuke Trigger: Unauthorized channel deletion.")
-                    print(f"[SECURITY] Neutralized threat: Banned {user.name} in '{channel.guild.name}'")
-                except Exception as ex:
-                    print(f"[ERROR] Could not neutralize threat: {ex}")
-    except Exception as e:
-        print(f"[Error] Channel monitor exception: {e}")
-
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        return  # হোয়াইটলিস্ট চেক ফেইল হলে অলরেডি প্রগ্রেসিভ পানিশমেন্ট দেওয়া হয়েছে
-    elif isinstance(error, commands.CommandNotFound):
-        return
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("⚠️ **Syntax Error:** Required parameters are missing.")
-    elif isinstance(error, commands.BadArgument):
-        await ctx.send("⚠️ **Syntax Error:** Invalid parameter types provided.")
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.send("⛔ **Access Denied:** Insufficient clearance level.")
-    else:
-        print(f"[Error] Unhandled exception in command '{ctx.command}': {error}")
-
-
-# --- 5. MAIN EXECUTION ---
+# --- 5. MAIN ---
 if __name__ == "__main__":
     keep_alive()
     bot_token = global_config.get("token")
     if bot_token:
-        try:
-            bot.run(bot_token)
-        except Exception as e:
-            print(f"❌ Fatal Error: {e}")
-    else:
-        print("❌ Critical: Bot token not found.")
+        bot.run(bot_token)
