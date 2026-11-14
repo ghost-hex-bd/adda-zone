@@ -25,7 +25,7 @@ DASHBOARD_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adda_Zone • Advanced Security Hub</title>
+    <title>Adda_Zone • Advanced Security & Permission Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,7 +37,7 @@ DASHBOARD_HTML = """
             --text-muted: #9ca3af;
         }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 900px; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); text-align: center; }
+        .container { width: 100%; max-width: 950px; background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); text-align: center; }
         .header { margin-bottom: 30px; position: relative; }
         h1 { color: #38bdf8; margin: 0 0 8px 0; font-size: 28px; font-weight: 700; }
         p.subtitle { color: var(--text-muted); margin: 0; font-size: 14px; }
@@ -79,7 +79,7 @@ DASHBOARD_HTML = """
                 </select>
             </div>
             <h1 id="t_title">🛡️ Adda_Zone Security Hub</h1>
-            <p class="subtitle" id="t_subtitle">Complete Anti-Nuke, Voice Control & Whitelist Panel</p>
+            <p class="subtitle" id="t_subtitle">Dynamic Dropdown Channel, Role & Member Permission Panel</p>
         </div>
         
         {% if not logged_in %}
@@ -118,13 +118,12 @@ DASHBOARD_HTML = """
                     <div class="section-title" id="t_sec1_title">🔒 Core Defenses & Anti-Nuke Control</div>
                     <div class="form-group">
                         <label for="guild_id" id="t_lbl_guild">Select Target Server *</label>
-                        <select id="guild_id" name="guild_id" required>
+                        <select id="guild_id" name="guild_id" onchange="location.href='/?guild_id='+this.value" required>
+                            <option value="">-- Choose Server --</option>
                             {% if guilds %}
                                 {% for g in guilds %}
-                                <option value="{{ g.id }}">{{ g.name }} (ID: {{ g.id }})</option>
+                                <option value="{{ g.id }}" {% if selected_guild_id == g.id %}selected{% endif %}>{{ g.name }} (ID: {{ g.id }})</option>
                                 {% endfor %}
-                            {% else %}
-                                <option value="">No authorized server available</option>
                             {% endif %}
                         </select>
                     </div>
@@ -132,44 +131,96 @@ DASHBOARD_HTML = """
                     <div class="form-group">
                         <label for="antinuke_toggle" id="t_lbl_antinuke">Anti-Nuke Defense (ON / OFF)</label>
                         <select id="antinuke_toggle" name="antinuke_toggle">
-                            <option value="true" id="t_opt_ani_on">🛡️ Anti-Nuke ON (Protected)</option>
-                            <option value="false" id="t_opt_ani_off">⚠️ Anti-Nuke OFF (Unprotected)</option>
+                            <option value="true" {% if current_config.antinuke %}selected{% endif %}>🛡️ Anti-Nuke ON (Protected)</option>
+                            <option value="false" {% if not current_config.antinuke %}selected{% endif %}>⚠️ Anti-Nuke OFF (Unprotected)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="system_active" id="t_lbl_sys_status">Bot Core Status (Active / Standby)</label>
                         <select id="system_active" name="system_active">
-                            <option value="true" id="t_opt_sys_on">🟢 Fully Activated (ON)</option>
-                            <option value="false" id="t_opt_sys_off">🔴 Standby / Deactivated (OFF)</option>
+                            <option value="true" {% if current_config.active %}selected{% endif %}>🟢 Fully Activated (ON)</option>
+                            <option value="false" {% if not current_config.active %}selected{% endif %}>🔴 Standby / Deactivated (OFF)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <div class="section-title" id="t_sec_whitelist">👑 Whitelist & Authorized Moderators Manager</div>
+                    <div class="section-title" id="t_sec_whitelist">👑 Member Whitelist & Moderator Selector</div>
                     <div class="form-group">
-                        <label for="whitelist_ids" id="t_lbl_whitelist">Allowed User IDs (Comma separated, e.g., 123456789, 987654321)</label>
-                        <input type="text" id="whitelist_ids" name="whitelist_ids" placeholder="Enter User IDs with comma separation">
+                        <label for="whitelist_member" id="t_lbl_whitelist">Select Server Member to Whitelist (মডারেটর হিসেবে সিলেক্ট করুন)</label>
+                        <select id="whitelist_member" name="whitelist_member">
+                            <option value="">-- Select Member from Server --</option>
+                            {% if server_members %}
+                                {% for m in server_members %}
+                                <option value="{{ m.id }}">{{ m.name }} (ID: {{ m.id }})</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">Select a server above first to load members</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="action_type" id="t_lbl_action">Whitelist Action (অ্যাকশন সিলেক্ট করুন)</label>
+                        <select id="action_type" name="action_type">
+                            <option value="add">➕ Add to Whitelist (অনুমতি দিন)</option>
+                            <option value="remove">➖ Remove from Whitelist (অনুমতি উঠিয়ে নিন)</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <div class="section-title" id="t_sec2_title">⏰ 24/7 Keep-Alive Auto-Ping Settings</div>
+                    <div class="section-title" id="t_sec_perms">⚙️ Advanced Security & Mention Permissions</div>
                     <div class="form-group">
-                        <label for="ping_toggle" id="t_lbl_ping_toggle">Auto-Ping Switch (Enable / Disable)</label>
+                        <label for="allow_everyone" id="t_lbl_everyone">Allow @everyone Mentions & Ping</label>
+                        <select id="allow_everyone" name="allow_everyone">
+                            <option value="true" {% if current_config.allow_everyone %}selected{% endif %}>✅ Allowed (@everyone Mention Enabled)</option>
+                            <option value="false" {% if not current_config.allow_everyone %}selected{% endif %}>❌ Blocked (@everyone Mention Restricted)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="allow_roles" id="t_lbl_roles">Allow Role Mentions & Pings</label>
+                        <select id="allow_roles" name="allow_roles">
+                            <option value="true" {% if current_config.allow_roles %}selected{% endif %}>✅ Allowed (Role Pings Enabled)</option>
+                            <option value="false" {% if not current_config.allow_roles %}selected{% endif %}>❌ Blocked (Role Pings Restricted)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title" id="t_sec2_title">⏰ 24/7 Keep-Alive Auto-Ping & Channel/Role Settings</div>
+                    <div class="form-group">
+                        <label for="ping_toggle" id="t_lbl_ping_toggle">Auto-Ping Switch</label>
                         <select id="ping_toggle" name="ping_toggle">
-                            <option value="true" id="t_opt_ping_on">🟢 Enable Auto-Ping (Active)</option>
-                            <option value="false" id="t_opt_ping_off">🔴 Disable Auto-Ping (Off)</option>
+                            <option value="true" {% if current_config.ping_enabled %}selected{% endif %}>🟢 Enable Auto-Ping</option>
+                            <option value="false" {% if not current_config.ping_enabled %}selected{% endif %}>🔴 Disable Auto-Ping</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="ping_channel_id" id="t_lbl_ping_chan">Target Channel ID</label>
-                        <input type="text" id="ping_channel_id" name="ping_channel_id" placeholder="Enter Channel ID">
+                        <label for="ping_channel_id" id="t_lbl_ping_chan">Select Target Channel (চ্যানেল ড্রপডাউন থেকে সিলেক্ট করুন)</label>
+                        <select id="ping_channel_id" name="ping_channel_id">
+                            <option value="">-- Choose Channel --</option>
+                            {% if server_channels %}
+                                {% for c in server_channels %}
+                                <option value="{{ c.id }}" {% if current_config.ping_channel_id == c.id|int %}selected{% endif %}>#{{ c.name }} (ID: {{ c.id }})</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">Select a server above first</option>
+                            {% endif %}
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label for="ping_role_id" id="t_lbl_ping_role">Target Role ID to Ping</label>
-                        <input type="text" id="ping_role_id" name="ping_role_id" placeholder="Enter Role ID">
+                        <label for="ping_role_id" id="t_lbl_ping_role">Select Target Role to Ping (রোল ড্রপডাউন থেকে সিলেক্ট করুন)</label>
+                        <select id="ping_role_id" name="ping_role_id">
+                            <option value="">-- Choose Role --</option>
+                            {% if server_roles %}
+                                {% for r in server_roles %}
+                                <option value="{{ r.id }}" {% if current_config.ping_role_id == r.id|int %}selected{% endif %}>@{{ r.name }} (ID: {{ r.id }})</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">Select a server above first</option>
+                            {% endif %}
+                        </select>
                     </div>
                 </div>
 
@@ -182,7 +233,7 @@ DASHBOARD_HTML = """
         {% endif %}
 
         <div class="footer">
-            Adda_Zone Security Architecture • Complete Suite Active
+            Adda_Zone Security Architecture • Dynamic Dropdown Suite Active
         </div>
     </div>
 
@@ -190,51 +241,47 @@ DASHBOARD_HTML = """
         const translations = {
             en: {
                 title: "🛡️ Adda_Zone Security Hub",
-                subtitle: "Complete Anti-Nuke, Voice Control & Whitelist Panel",
+                subtitle: "Dynamic Dropdown Channel, Role & Member Permission Panel",
                 login_desc: "Secure authentication required to access management controls.",
                 login_btn: "Login with Discord",
                 sec_servers: "🌐 Protected Servers & Managed Hubs",
                 sec1_title: "🔒 Core Defenses & Anti-Nuke Control",
                 lbl_guild: "Select Target Server",
                 lbl_antinuke: "Anti-Nuke Defense (ON / OFF)",
-                opt_ani_on: "🛡️ Anti-Nuke ON (Protected)",
-                opt_ani_off: "⚠️ Anti-Nuke OFF (Unprotected)",
                 lbl_sys_status: "Bot Core Status (Active / Standby)",
-                opt_sys_on: "🟢 Fully Activated (ON)",
-                opt_sys_off: "🔴 Standby / Deactivated (OFF)",
-                sec_whitelist: "👑 Whitelist & Authorized Moderators Manager",
-                lbl_whitelist: "Allowed User IDs (Comma separated)",
-                sec2_title: "⏰ 24/7 Keep-Alive Auto-Ping Settings",
-                lbl_ping_toggle: "Auto-Ping Switch (Enable / Disable)",
-                opt_ping_on: "🟢 Enable Auto-Ping (Active)",
-                opt_ping_off: "🔴 Disable Auto-Ping (Off)",
-                lbl_ping_chan: "Target Channel ID",
-                lbl_ping_role: "Target Role ID to Ping",
+                sec_whitelist: "👑 Member Whitelist & Moderator Selector",
+                lbl_whitelist: "Select Server Member to Whitelist",
+                lbl_action: "Whitelist Action",
+                sec_perms: "⚙️ Advanced Security & Mention Permissions",
+                lbl_everyone: "Allow @everyone Mentions & Ping",
+                lbl_roles: "Allow Role Mentions & Pings",
+                sec2_title: "⏰ 24/7 Keep-Alive Auto-Ping & Channel/Role Settings",
+                lbl_ping_toggle: "Auto-Ping Switch",
+                lbl_ping_chan: "Select Target Channel",
+                lbl_ping_role: "Select Target Role to Ping",
                 btn_submit: "Commit Changes",
                 logout: "Logout / Switch Account"
             },
             bn: {
                 title: "🛡️ অ্যাডাজোন সিকিউরিটি হাব",
-                subtitle: "সম্পূর্ণ অ্যান্টি-নিউক, ভয়েস কন্ট্রোল ও হোয়াইটলিস্ট প্যানেল",
+                subtitle: "ডাইনামিক ড্রপডাউন চ্যানেল, রোল ও মেম্বার পারমিশন প্যানেল",
                 login_desc: "ম্যানেজমেন্ট কন্ট্রোল প্যানেল ব্যবহার করতে ডিসকর্ড দিয়ে লগইন করুন।",
                 login_btn: "ডিসকর্ড দিয়ে লগইন করুন",
                 sec_servers: "🌐 প্রোটেক্টেড সার্ভার ও ম্যানেজড হাবসমূহ",
                 sec1_title: "🔒 মূল প্রতিরক্ষা ও অ্যান্টি-নিউক ডিফেন্স",
                 lbl_guild: "টার্গেট সার্ভার সিলেক্ট করুন",
                 lbl_antinuke: "অ্যান্টি-নিউক ডিফেন্স (ON / OFF)",
-                opt_ani_on: "🛡️ অ্যান্টি-নিউক চালু (Protected)",
-                opt_ani_off: "⚠️ অ্যান্টি-নিউক বন্ধ (Unprotected)",
                 lbl_sys_status: "বট কোরের অবস্থা (সচল/স্ট্যান্ডবাই)",
-                opt_sys_on: "🟢 পুরোপুরি সচল (ON)",
-                opt_sys_off: "🔴 স্ট্যান্ডবাই / বন্ধ (OFF)",
-                sec_whitelist: "👑 হোয়াইটলিস্ট ও অনুমোদিত মডারেটর ম্যানেজার",
-                lbl_whitelist: "অনুমোদিত ইউজার আইডিগুলো কমা দিয়ে লিখুন",
-                sec2_title: "⏰ ২৪/৭ সচল রাখার অটো-পিং সেটিংস",
-                lbl_ping_toggle: "অটো-পিং সুইচ (চালু/বন্ধ)",
-                opt_ping_on: "🟢 অটো-পিং চালু করুন (Active)",
-                opt_ping_off: "🔴 অটো-পিং বন্ধ রাখুন (Off)",
-                lbl_ping_chan: "টার্গেট চ্যানেল আইডি",
-                lbl_ping_role: "পিং করার জন্য টার্গেট রোল আইডি",
+                sec_whitelist: "👑 মেম্বার হোয়াইটলিস্ট ও মডারেটর সিলেক্টর",
+                lbl_whitelist: "তালিকা থেকে মেম্বার সিলেক্ট করুন",
+                lbl_action: "হোয়াইটলিস্ট অ্যাকশন (যুক্ত বা বাদ দিন)",
+                sec_perms: "⚙️ এডভান্সড সিকিউরিটি ও মেনশন পারমিশন",
+                lbl_everyone: "@everyone মেনশন ও পিং করার অনুমতি",
+                lbl_roles: "রোল মেনশন ও পিং করার অনুমতি",
+                sec2_title: "⏰ ২৪/৭ সচল রাখার অটো-পিং ও চ্যানেল/রোল সেটিংস",
+                lbl_ping_toggle: "অটো-পিং সুইচ",
+                lbl_ping_chan: "টার্গেট চ্যানেল সিলেক্ট করুন",
+                lbl_ping_role: "পিং করার জন্য টার্গেট রোল সিলেক্ট করুন",
                 btn_submit: "পরিবর্তন সেভ করুন",
                 logout: "লগআউট / অ্যাকাউন্ট পরিবর্তন করুন"
             }
@@ -255,8 +302,14 @@ DASHBOARD_HTML = """
                 document.getElementById('t_lbl_sys_status').innerText = t.lbl_sys_status;
                 document.getElementById('t_sec_whitelist').innerText = t.sec_whitelist;
                 document.getElementById('t_lbl_whitelist').innerText = t.lbl_whitelist;
+                document.getElementById('t_lbl_action').innerText = t.lbl_action;
+                document.getElementById('t_sec_perms').innerText = t.sec_perms;
+                document.getElementById('t_lbl_everyone').innerText = t.lbl_everyone;
+                document.getElementById('t_lbl_roles').innerText = t.lbl_roles;
                 document.getElementById('t_sec2_title').innerText = t.sec2_title;
                 document.getElementById('t_lbl_ping_toggle').innerText = t.lbl_ping_toggle;
+                document.getElementById('t_lbl_ping_chan').innerText = t.lbl_ping_chan;
+                document.getElementById('t_lbl_ping_role').innerText = t.lbl_ping_role;
                 document.getElementById('t_btn_submit').innerText = t.btn_submit;
                 document.getElementById('t_logout').innerText = t.logout;
             }
@@ -272,7 +325,46 @@ def dashboard():
     username = session.get('username', '')
     user_id = session.get('user_id', '')
     guilds = session.get('guilds', [])
-    return render_template_string(DASHBOARD_HTML, logged_in=logged_in, username=username, user_id=user_id, guilds=guilds)
+    
+    selected_guild_id = request.args.get('guild_id', '').strip()
+    server_members = []
+    server_channels = []
+    server_roles = []
+    current_config = load_server_config(selected_guild_id) if selected_guild_id else {}
+    
+    if selected_guild_id and selected_guild_id.isdigit():
+        guild_obj = bot.get_guild(int(selected_guild_id))
+        if guild_obj:
+            for member in guild_obj.members:
+                if not member.bot:
+                    server_members.append({
+                        'id': str(member.id),
+                        'name': f"{member.name} ({member.display_name})"
+                    })
+            for channel in guild_obj.text_channels:
+                server_channels.append({
+                    'id': str(channel.id),
+                    'name': channel.name
+                })
+            for role in guild_obj.roles:
+                if role.name != "@everyone":
+                    server_roles.append({
+                        'id': str(role.id),
+                        'name': role.name
+                    })
+
+    return render_template_string(
+        DASHBOARD_HTML, 
+        logged_in=logged_in, 
+        username=username, 
+        user_id=user_id, 
+        guilds=guilds, 
+        selected_guild_id=selected_guild_id,
+        server_members=server_members,
+        server_channels=server_channels,
+        server_roles=server_roles,
+        current_config=current_config
+    )
 
 @app.route('/login')
 def login():
@@ -353,7 +445,11 @@ def update_config():
     antinuke_val = request.form.get('antinuke_toggle', 'true').lower() == 'true'
     system_active_val = request.form.get('system_active', 'true').lower() == 'true'
     
-    whitelist_input = request.form.get('whitelist_ids', '').strip()
+    selected_member_id = request.form.get('whitelist_member', '').strip()
+    action_type = request.form.get('action_type', 'add').strip()
+    
+    allow_everyone_val = request.form.get('allow_everyone', 'true').lower() == 'true'
+    allow_roles_val = request.form.get('allow_roles', 'true').lower() == 'true'
     
     ping_toggle_val = request.form.get('ping_toggle', 'false').lower() == 'true'
     ping_channel_id = request.form.get('ping_channel_id', '').strip()
@@ -366,13 +462,9 @@ def update_config():
     g_id_int = int(guild_id)
 
     is_global = (uid_admin == OWNER_ID)
-    
     guild_obj = bot.get_guild(g_id_int)
-    is_server_owner = False
-    if guild_obj and guild_obj.owner_id == uid_admin:
-        is_server_owner = True
+    is_server_owner = (guild_obj and guild_obj.owner_id == uid_admin)
 
-    # চেক করা ইউজার হোয়াইটলিস্টে আছে কি না
     g_data_temp = load_server_config(guild_id)
     is_whitelisted = uid_admin in g_data_temp.get("whitelist", [])
 
@@ -385,15 +477,18 @@ def update_config():
         g_data["antinuke"] = antinuke_val
         g_data["active"] = system_active_val
         g_data["ping_enabled"] = ping_toggle_val
+        g_data["allow_everyone"] = allow_everyone_val
+        g_data["allow_roles"] = allow_roles_val
         
-        # হোয়াইটলিস্ট আইডিগুলো পার্স করা
-        if whitelist_input:
-            w_list = []
-            for uid in whitelist_input.split(','):
-                uid = uid.strip()
-                if uid.isdigit():
-                    w_list.append(int(uid))
-            g_data["whitelist"] = w_list
+        # মেম্বার সিলেক্ট করে হোয়াইটলিস্টে যোগ বা বাদ দেওয়ার লজিক
+        if selected_member_id.isdigit():
+            m_id_int = int(selected_member_id)
+            if action_type == 'add':
+                if m_id_int not in g_data["whitelist"]:
+                    g_data["whitelist"].append(m_id_int)
+            elif action_type == 'remove':
+                if m_id_int in g_data["whitelist"]:
+                    g_data["whitelist"].remove(m_id_int)
             
         if ping_channel_id.isdigit():
             g_data["ping_channel_id"] = int(ping_channel_id)
@@ -402,7 +497,7 @@ def update_config():
         
         save_server_config(guild_id, g_data)
         
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('dashboard', guild_id=guild_id))
 
 def run_flask():
     port = int(os.environ.get('PORT', 8080))
@@ -431,6 +526,8 @@ def load_server_config(guild_id):
         "prefix": "!",
         "antinuke": True,
         "whitelist": [],
+        "allow_everyone": True,
+        "allow_roles": True,
         "ping_enabled": False,
         "ping_channel_id": None,
         "ping_role_id": None
@@ -452,7 +549,7 @@ def get_prefix(bot, message):
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_prefix, intents=intents, help_command=None)
 
-# পারমিশন চেকার ফাংশন (ওনার বা হোয়াইটলিস্টে থাকা মডারেটরের জন্য)
+# পারমিশন চেকার ফাংশন
 def is_authorized(ctx):
     if not ctx.guild:
         return False
@@ -483,7 +580,38 @@ async def uptime_keep_alive_ping():
 async def before_uptime_ping():
     await bot.wait_until_ready()
 
-# --- অ্যান্টি-নিউক ডিফেন্স ইভেন্ট ও অডিট লগার ---
+# --- অ্যান্টি-নিউক ডিফেন্স ইভেন্ট ও মেনশন রেস্ট্রিকশন লগার ---
+@bot.event
+async def on_message(message):
+    if message.author.bot or not message.guild:
+        return
+    
+    guild_id = str(message.guild.id)
+    g_data = load_server_config(guild_id)
+    
+    if g_data.get("active", True):
+        # @everyone মেনশন রেস্ট্রিকশন চেক
+        if not g_data.get("allow_everyone", True) and ("@everyone" in message.content or "@here" in message.content):
+            if not message.author.guild_permissions.administrator and message.author.id != OWNER_ID:
+                try:
+                    await message.delete()
+                    await message.channel.send(f"⚠️ {message.author.mention}, এই সার্ভারে `@everyone` মেনশন করার অনুমতি নেই!", delete_after=5)
+                    return
+                except Exception:
+                    pass
+
+        # রোল মেনশন রেস্ট্রিকশন চেক
+        if not g_data.get("allow_roles", True) and len(message.role_mentions) > 0:
+            if not message.author.guild_permissions.administrator and message.author.id != OWNER_ID:
+                try:
+                    await message.delete()
+                    await message.channel.send(f"⚠️ {message.author.mention}, এই সার্ভারে রোল মেনশন করার অনুমতি নেই!", delete_after=5)
+                    return
+                except Exception:
+                    pass
+
+    await bot.process_commands(message)
+
 @bot.event
 async def on_guild_channel_create(channel):
     guild_id = str(channel.guild.id)
@@ -602,12 +730,6 @@ async def help_command(ctx):
 @bot.command(name="ping")
 async def ping(ctx):
     await ctx.send(f"⚡ Adda_Zone Latency: {round(bot.latency * 1000)}ms")
-
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-    await bot.process_commands(message)
 
 if __name__ == "__main__":
     keep_alive()
