@@ -302,13 +302,12 @@ def callback():
             is_owner = g.get('owner', False)
             has_admin = (permissions & 0x8) == 0x8
             
-            if is_owner or has_admin:
-                g_id = int(g.get('id'))
-                if bot.get_guild(g_id):
-                    managed_guilds.append({
-                        'id': str(g_id),
-                        'name': g.get('name', 'Unknown Server')
-                    })
+            # গ্লোবাল ওনার অথবা সার্ভারের ওনার/অ্যাডমিন হলে লিস্টে যুক্ত হবে
+            if is_owner or has_admin or int(user_data.get('id', 0)) == OWNER_ID:
+                managed_guilds.append({
+                    'id': str(g.get('id')),
+                    'name': g.get('name', 'Unknown Server')
+                })
 
     session['user_id'] = str(user_data.get('id'))
     session['username'] = f"{user_data.get('username')}#{user_data.get('discriminator', '0')}"
@@ -435,7 +434,6 @@ async def uptime_keep_alive_ping():
 async def before_uptime_ping():
     await bot.wait_until_ready()
 
-# --- অ্যান্টি-নিউক প্রটেকশন ও ইভেন্ট হ্যান্ডলার ---
 @bot.event
 async def on_guild_channel_create(channel):
     guild_id = str(channel.guild.id)
@@ -452,7 +450,6 @@ async def on_guild_channel_delete(channel):
         return
     print(f"[ANTINUKE] Channel deletion firewall alert in {channel.guild.name}: {channel.name}")
 
-# --- প্রয়োজনীয় মডারেশন কমান্ডসমূহ (Kick, Ban, Timeout, Ping) ---
 @bot.command(name="kick")
 @commands.has_permissions(kick_members=True)
 async def kick_command(ctx, member: discord.Member, *, reason=None):
@@ -513,6 +510,7 @@ async def system_off(ctx):
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     g_data["active"] = False
+    save_server_config(guild_id, data) # Fixed logic
     save_server_config(guild_id, g_data)
     await ctx.send("🔴 **XIERON Sentinel Core Deactivated**")
 
