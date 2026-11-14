@@ -1,7 +1,6 @@
 import os
 import json
 import threading
-import asyncio
 from datetime import timedelta
 import discord
 from discord.ext import commands, tasks
@@ -13,16 +12,16 @@ app = Flask('')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'adda_zone_secure_oauth_key_v13')
 data_lock = threading.Lock()
 
-# আপনার দেওয়া নির্দিষ্ট ভেরিয়েবল নামগুলো এখানে হুবহু ব্যবহার করা হয়েছে
-DISCORD_CLIENT_ID = os.environ.get('DISCORD_CLIENT_ID', '')
-DISCORD_CLIENT_SECRET = os.environ.get('DISCORD_CLIENT_SECRET', '')
-REDIRECT_URI = os.environ.get('DISCORD_REDIRECT_URI', '')
-DISCORD_BOT_TOKEN = os.environ.get('DISCORD_BOT_TOKEN', '')
+# আপনার সেই সুনির্দিষ্ট ৪টি ভেরিয়েবল ও ক্লায়েন্ট সিক্রেট
+DISCORD_BOT_TOKEN = os.environ.get('DISCORD_BOT_TOKEN', '').strip()
+DISCORD_CLIENT_ID = os.environ.get('DISCORD_CLIENT_ID', '').strip()
+DISCORD_REDIRECT_URI = os.environ.get('DISCORD_REDIRECT_URI', '').strip()
 OWNER_ID = int(os.environ.get('OWNER_ID', '0').strip() or 0)
+DISCORD_CLIENT_SECRET = os.environ.get('DISCORD_CLIENT_SECRET', '').strip()
 
 DASHBOARD_HTML = """
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -248,9 +247,9 @@ def dashboard():
 
 @app.route('/login')
 def login():
-    if not DISCORD_CLIENT_ID or not REDIRECT_URI:
-        return "OAuth2 Error: CLIENT_ID or REDIRECT_URI is missing in environment variables!", 500
-    discord_login_url = f"https://discord.com/api/oauth2/authorize?client_id={DISCORD_CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code&scope=identify%20guilds"
+    if not DISCORD_CLIENT_ID or not DISCORD_REDIRECT_URI:
+        return "OAuth2 Error: CLIENT_ID or DISCORD_REDIRECT_URI is missing!", 500
+    discord_login_url = f"https://discord.com/api/oauth2/authorize?client_id={DISCORD_CLIENT_ID}&redirect_uri={DISCORD_REDIRECT_URI}&response_type=code&scope=identify%20guilds"
     return redirect(discord_login_url)
 
 @app.route('/callback')
@@ -261,10 +260,10 @@ def callback():
     
     data = {
         'client_id': DISCORD_CLIENT_ID,
-        'client_secret': CLIENT_SECRET,
+        'client_secret': DISCORD_CLIENT_SECRET,
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': REDIRECT_URI
+        'redirect_uri': DISCORD_REDIRECT_URI
     }
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     r = requests.post('https://discord.com/api/oauth2/token', data=data, headers=headers)
@@ -309,8 +308,7 @@ def update_config():
     uid_admin = int(admin_user_id)
     g_id_int = int(guild_id)
 
-    global_owner = OWNER_ID
-    is_global = (uid_admin == global_owner)
+    is_global = (uid_admin == OWNER_ID)
     
     guild_obj = bot.get_guild(g_id_int)
     is_server_owner = False
