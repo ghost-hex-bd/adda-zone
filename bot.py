@@ -25,7 +25,7 @@ DASHBOARD_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adda_Zone • Security Control Hub</title>
+    <title>Adda_Zone • Advanced Security Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -58,7 +58,7 @@ DASHBOARD_HTML = """
         input[type="text"], select { width: 100%; padding: 12px 16px; background: #111827; border: 1px solid var(--border-color); border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; }
         
         button.submit-btn { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; width: 100%; margin-top: 10px; }
-        button.submit-btn:hover { background: linear-gradient(135deg, #0369a1 0%, #075985 100%); }
+        button.submit-btn:hover { background: linear-gradient(135deg, #0369a1 100%, #075985 100%); }
         
         .server-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .server-card { background: #111827; border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; text-align: center; }
@@ -79,12 +79,12 @@ DASHBOARD_HTML = """
                 </select>
             </div>
             <h1 id="t_title">🛡️ Adda_Zone Security Hub</h1>
-            <p class="subtitle" id="t_subtitle">Official Anti-Nuke & Server Management Panel</p>
+            <p class="subtitle" id="t_subtitle">Complete Anti-Nuke, Voice Control & Whitelist Panel</p>
         </div>
         
         {% if not logged_in %}
         <div class="login-box">
-            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;" id="t_login_desc">Secure authentication required to access server management controls.</p>
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;" id="t_login_desc">Secure authentication required to access management controls.</p>
             <a href="/login" class="discord-btn" id="t_login_btn">
                 <svg width="22" height="17" fill="currentColor" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.15c2.65-27.28-4.52-51.19-19.49-72.1M42.45,65.69C36.18,65.69,31,60,31,53s5.18-12.72,11.45-12.72S53.9,46,53.88,53s-5.18,12.69-11.43,12.69m42.24,0C78.41,65.69,73.2,60,73.2,53s5.18-12.72,11.45-12.72S96.13,46,96.11,53s-5.18,12.69-11.42,12.69"/></svg>
                 Login with Discord / ডিসকর্ড দিয়ে লগইন করুন
@@ -115,7 +115,7 @@ DASHBOARD_HTML = """
             
             <form method="POST" action="/update">
                 <div class="form-section">
-                    <div class="section-title" id="t_sec1_title">🔒 Server Security & Anti-Nuke Control</div>
+                    <div class="section-title" id="t_sec1_title">🔒 Core Defenses & Anti-Nuke Control</div>
                     <div class="form-group">
                         <label for="guild_id" id="t_lbl_guild">Select Target Server *</label>
                         <select id="guild_id" name="guild_id" required>
@@ -130,7 +130,7 @@ DASHBOARD_HTML = """
                     </div>
 
                     <div class="form-group">
-                        <label for="antinuke_toggle" id="t_lbl_antinuke">Anti-Nuke Protection (ON / OFF)</label>
+                        <label for="antinuke_toggle" id="t_lbl_antinuke">Anti-Nuke Defense (ON / OFF)</label>
                         <select id="antinuke_toggle" name="antinuke_toggle">
                             <option value="true" id="t_opt_ani_on">🛡️ Anti-Nuke ON (Protected)</option>
                             <option value="false" id="t_opt_ani_off">⚠️ Anti-Nuke OFF (Unprotected)</option>
@@ -143,6 +143,14 @@ DASHBOARD_HTML = """
                             <option value="true" id="t_opt_sys_on">🟢 Fully Activated (ON)</option>
                             <option value="false" id="t_opt_sys_off">🔴 Standby / Deactivated (OFF)</option>
                         </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title" id="t_sec_whitelist">👑 Whitelist & Authorized Moderators Manager</div>
+                    <div class="form-group">
+                        <label for="whitelist_ids" id="t_lbl_whitelist">Allowed User IDs (Comma separated, e.g., 123456789, 987654321)</label>
+                        <input type="text" id="whitelist_ids" name="whitelist_ids" placeholder="Enter User IDs with comma separation">
                     </div>
                 </div>
 
@@ -174,7 +182,7 @@ DASHBOARD_HTML = """
         {% endif %}
 
         <div class="footer">
-            Adda_Zone Security Architecture • 24/7 Online
+            Adda_Zone Security Architecture • Complete Suite Active
         </div>
     </div>
 
@@ -182,18 +190,20 @@ DASHBOARD_HTML = """
         const translations = {
             en: {
                 title: "🛡️ Adda_Zone Security Hub",
-                subtitle: "Official Anti-Nuke & Server Management Panel",
-                login_desc: "Secure authentication required to access server management controls.",
+                subtitle: "Complete Anti-Nuke, Voice Control & Whitelist Panel",
+                login_desc: "Secure authentication required to access management controls.",
                 login_btn: "Login with Discord",
                 sec_servers: "🌐 Protected Servers & Managed Hubs",
-                sec1_title: "🔒 Server Security & Anti-Nuke Control",
+                sec1_title: "🔒 Core Defenses & Anti-Nuke Control",
                 lbl_guild: "Select Target Server",
-                lbl_antinuke: "Anti-Nuke Protection (ON / OFF)",
+                lbl_antinuke: "Anti-Nuke Defense (ON / OFF)",
                 opt_ani_on: "🛡️ Anti-Nuke ON (Protected)",
                 opt_ani_off: "⚠️ Anti-Nuke OFF (Unprotected)",
                 lbl_sys_status: "Bot Core Status (Active / Standby)",
                 opt_sys_on: "🟢 Fully Activated (ON)",
                 opt_sys_off: "🔴 Standby / Deactivated (OFF)",
+                sec_whitelist: "👑 Whitelist & Authorized Moderators Manager",
+                lbl_whitelist: "Allowed User IDs (Comma separated)",
                 sec2_title: "⏰ 24/7 Keep-Alive Auto-Ping Settings",
                 lbl_ping_toggle: "Auto-Ping Switch (Enable / Disable)",
                 opt_ping_on: "🟢 Enable Auto-Ping (Active)",
@@ -205,18 +215,20 @@ DASHBOARD_HTML = """
             },
             bn: {
                 title: "🛡️ অ্যাডাজোন সিকিউরিটি হাব",
-                subtitle: "অফিসিয়াল অ্যান্টি-নিউক ও সার্ভার ম্যানেজমেন্ট প্যানেল",
-                login_desc: "সার্ভার ম্যানেজমেন্ট কন্ট্রোল প্যানেল ব্যবহার করতে ডিসকর্ড দিয়ে লগইন করুন।",
+                subtitle: "সম্পূর্ণ অ্যান্টি-নিউক, ভয়েস কন্ট্রোল ও হোয়াইটলিস্ট প্যানেল",
+                login_desc: "ম্যানেজমেন্ট কন্ট্রোল প্যানেল ব্যবহার করতে ডিসকর্ড দিয়ে লগইন করুন।",
                 login_btn: "ডিসকর্ড দিয়ে লগইন করুন",
                 sec_servers: "🌐 প্রোটেক্টেড সার্ভার ও ম্যানেজড হাবসমূহ",
-                sec1_title: "🔒 সার্ভার সিকিউরিটি ও অ্যান্টি-নিউক কন্ট্রোল",
+                sec1_title: "🔒 মূল প্রতিরক্ষা ও অ্যান্টি-নিউক ডিফেন্স",
                 lbl_guild: "টার্গেট সার্ভার সিলেক্ট করুন",
-                lbl_antinuke: "অ্যান্টি-নিউক প্রটেকশন (ON / OFF)",
+                lbl_antinuke: "অ্যান্টি-নিউক ডিফেন্স (ON / OFF)",
                 opt_ani_on: "🛡️ অ্যান্টি-নিউক চালু (Protected)",
                 opt_ani_off: "⚠️ অ্যান্টি-নিউক বন্ধ (Unprotected)",
                 lbl_sys_status: "বট কোরের অবস্থা (সচল/স্ট্যান্ডবাই)",
                 opt_sys_on: "🟢 পুরোপুরি সচল (ON)",
                 opt_sys_off: "🔴 স্ট্যান্ডবাই / বন্ধ (OFF)",
+                sec_whitelist: "👑 হোয়াইটলিস্ট ও অনুমোদিত মডারেটর ম্যানেজার",
+                lbl_whitelist: "অনুমোদিত ইউজার আইডিগুলো কমা দিয়ে লিখুন",
                 sec2_title: "⏰ ২৪/৭ সচল রাখার অটো-পিং সেটিংস",
                 lbl_ping_toggle: "অটো-পিং সুইচ (চালু/বন্ধ)",
                 opt_ping_on: "🟢 অটো-পিং চালু করুন (Active)",
@@ -241,6 +253,8 @@ DASHBOARD_HTML = """
                 document.getElementById('t_lbl_guild').innerText = t.lbl_guild;
                 document.getElementById('t_lbl_antinuke').innerText = t.lbl_antinuke;
                 document.getElementById('t_lbl_sys_status').innerText = t.lbl_sys_status;
+                document.getElementById('t_sec_whitelist').innerText = t.sec_whitelist;
+                document.getElementById('t_lbl_whitelist').innerText = t.lbl_whitelist;
                 document.getElementById('t_sec2_title').innerText = t.sec2_title;
                 document.getElementById('t_lbl_ping_toggle').innerText = t.lbl_ping_toggle;
                 document.getElementById('t_btn_submit').innerText = t.btn_submit;
@@ -339,6 +353,8 @@ def update_config():
     antinuke_val = request.form.get('antinuke_toggle', 'true').lower() == 'true'
     system_active_val = request.form.get('system_active', 'true').lower() == 'true'
     
+    whitelist_input = request.form.get('whitelist_ids', '').strip()
+    
     ping_toggle_val = request.form.get('ping_toggle', 'false').lower() == 'true'
     ping_channel_id = request.form.get('ping_channel_id', '').strip()
     ping_role_id = request.form.get('ping_role_id', '').strip()
@@ -356,7 +372,11 @@ def update_config():
     if guild_obj and guild_obj.owner_id == uid_admin:
         is_server_owner = True
 
-    if not (is_global or is_server_owner):
+    # চেক করা ইউজার হোয়াইটলিস্টে আছে কি না
+    g_data_temp = load_server_config(guild_id)
+    is_whitelisted = uid_admin in g_data_temp.get("whitelist", [])
+
+    if not (is_global or is_server_owner or is_whitelisted):
         return redirect(url_for('dashboard'))
 
     with data_lock:
@@ -366,6 +386,15 @@ def update_config():
         g_data["active"] = system_active_val
         g_data["ping_enabled"] = ping_toggle_val
         
+        # হোয়াইটলিস্ট আইডিগুলো পার্স করা
+        if whitelist_input:
+            w_list = []
+            for uid in whitelist_input.split(','):
+                uid = uid.strip()
+                if uid.isdigit():
+                    w_list.append(int(uid))
+            g_data["whitelist"] = w_list
+            
         if ping_channel_id.isdigit():
             g_data["ping_channel_id"] = int(ping_channel_id)
         if ping_role_id.isdigit():
@@ -401,6 +430,7 @@ def load_server_config(guild_id):
         "active": False,
         "prefix": "!",
         "antinuke": True,
+        "whitelist": [],
         "ping_enabled": False,
         "ping_channel_id": None,
         "ping_role_id": None
@@ -421,6 +451,15 @@ def get_prefix(bot, message):
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=get_prefix, intents=intents, help_command=None)
+
+# পারমিশন চেকার ফাংশন (ওনার বা হোয়াইটলিস্টে থাকা মডারেটরের জন্য)
+def is_authorized(ctx):
+    if not ctx.guild:
+        return False
+    if ctx.author.id == OWNER_ID or ctx.author.id == ctx.guild.owner_id:
+        return True
+    g_data = load_server_config(str(ctx.guild.id))
+    return ctx.author.id in g_data.get("whitelist", [])
 
 @tasks.loop(minutes=10)
 async def uptime_keep_alive_ping():
@@ -444,13 +483,14 @@ async def uptime_keep_alive_ping():
 async def before_uptime_ping():
     await bot.wait_until_ready()
 
+# --- অ্যান্টি-নিউক ডিফেন্স ইভেন্ট ও অডিট লগার ---
 @bot.event
 async def on_guild_channel_create(channel):
     guild_id = str(channel.guild.id)
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True) or not g_data.get("antinuke", True):
         return
-    print(f"[Adda_Zone ANTINUKE] Channel created in {channel.guild.name}: {channel.name}")
+    print(f"[Adda_Zone AUDIT LOG] Channel created: {channel.name} in {channel.guild.name}")
 
 @bot.event
 async def on_guild_channel_delete(channel):
@@ -458,15 +498,13 @@ async def on_guild_channel_delete(channel):
     g_data = load_server_config(guild_id)
     if not g_data.get("active", True) or not g_data.get("antinuke", True):
         return
-    print(f"[Adda_Zone ANTINUKE] Channel deleted in {channel.guild.name}: {channel.name}")
+    print(f"[Adda_Zone AUDIT LOG] Channel deleted: {channel.name} in {channel.guild.name}")
 
+# --- ১. কিক, ব্যান ও টাইমআউট কমান্ড ---
 @bot.command(name="kick")
-@commands.has_permissions(kick_members=True)
 async def kick_command(ctx, member: discord.Member, *, reason=None):
-    guild_id = str(ctx.guild.id)
-    g_data = load_server_config(guild_id)
-    if not g_data.get("active", True):
-        await ctx.send("⚠️ Adda_Zone সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
+    if not is_authorized(ctx):
+        await ctx.send("❌ আপনার এই কমান্ডটি চালানোর অনুমতি নেই (হোয়াইটলিস্টে নেই)।")
         return
     try:
         await member.kick(reason=reason)
@@ -475,12 +513,9 @@ async def kick_command(ctx, member: discord.Member, *, reason=None):
         await ctx.send(f"❌ কিক করতে সমস্যা হয়েছে: {e}")
 
 @bot.command(name="ban")
-@commands.has_permissions(ban_members=True)
 async def ban_command(ctx, member: discord.Member, *, reason=None):
-    guild_id = str(ctx.guild.id)
-    g_data = load_server_config(guild_id)
-    if not g_data.get("active", True):
-        await ctx.send("⚠️ Adda_Zone সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
+    if not is_authorized(ctx):
+        await ctx.send("❌ আপনার এই ব্যান কমান্ডটি চালানোর অনুমতি নেই।")
         return
     try:
         await member.ban(reason=reason)
@@ -489,12 +524,9 @@ async def ban_command(ctx, member: discord.Member, *, reason=None):
         await ctx.send(f"❌ ব্যান করতে সমস্যা হয়েছে: {e}")
 
 @bot.command(name="timeout", aliases=["mute"])
-@commands.has_permissions(moderate_members=True)
 async def timeout_command(ctx, member: discord.Member, minutes: int, *, reason=None):
-    guild_id = str(ctx.guild.id)
-    g_data = load_server_config(guild_id)
-    if not g_data.get("active", True):
-        await ctx.send("⚠️ Adda_Zone সিকিউরিটি সিস্টেমটি বর্তমানে বন্ধ (OFF) রয়েছে।")
+    if not is_authorized(ctx):
+        await ctx.send("❌ আপনার এই টাইমআউট কমান্ডটি চালানোর অনুমতি নেই।")
         return
     try:
         duration = timedelta(minutes=minutes)
@@ -503,31 +535,67 @@ async def timeout_command(ctx, member: discord.Member, minutes: int, *, reason=N
     except Exception as e:
         await ctx.send(f"❌ টাইমআউট দিতে সমস্যা হয়েছে: {e}")
 
+# --- ২. ভয়েস কন্ট্রোল কমান্ড (Server Mute, Unmute, Deafen) ---
+@bot.command(name="vcmute")
+async def vcmute_command(ctx, member: discord.Member, *, reason=None):
+    if not is_authorized(ctx):
+        await ctx.send("❌ আপনার ভয়েস মিউট করার অনুমতি নেই।")
+        return
+    try:
+        await member.edit(mute=True, reason=reason)
+        await ctx.send(f"🎙️🔇 ভয়েস মিউট করা হয়েছে: **{member}**")
+    except Exception as e:
+        await ctx.send(f"❌ ভয়েস মিউট করতে সমস্যা হয়েছে: {e}")
+
+@bot.command(name="vcunmute")
+async def vcunmute_command(ctx, member: discord.Member, *, reason=None):
+    if not is_authorized(ctx):
+        await ctx.send("❌ আপনার ভয়েস আনমিউট করার অনুমতি নেই।")
+        return
+    try:
+        await member.edit(mute=False, reason=reason)
+        await ctx.send(f"🎙️🔊 ভয়েস আনমিউট করা হয়েছে: **{member}**")
+    except Exception as e:
+        await ctx.send(f"❌ ভয়েস আনমিউট করতে সমস্যা হয়েছে: {e}")
+
+@bot.command(name="vcdeafen")
+async def vcdeafen_command(ctx, member: discord.Member, *, reason=None):
+    if not is_authorized(ctx):
+        await ctx.send("❌ আপনার ডিফেন (Deafen) করার অনুমতি নেই।")
+        return
+    try:
+        await member.edit(deafen=True, reason=reason)
+        await ctx.send(f"🎧 সার্ভার ডিফেন্ড করা হয়েছে: **{member}**")
+    except Exception as e:
+        await ctx.send(f"❌ ডিফেন করতে সমস্যা হয়েছে: {e}")
+
+# --- ৩. সিস্টেম অন/অফ কন্ট্রোল ---
 @bot.command(name="on", aliases=["start", "enable"])
 async def system_on(ctx):
-    if not ctx.guild or (ctx.author.id != OWNER_ID and ctx.author.id != ctx.guild.owner_id):
+    if not is_authorized(ctx):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     g_data["active"] = True
     save_server_config(guild_id, g_data)
-    await ctx.send("🟢 **Adda_Zone Security Core Fully Activated**")
+    await ctx.send("🟢 **Adda_Zone Security Core & Anti-Nuke Fully Activated**")
 
 @bot.command(name="off", aliases=["stop", "disable"])
 async def system_off(ctx):
-    if not ctx.guild or (ctx.author.id != OWNER_ID and ctx.author.id != ctx.guild.owner_id):
+    if not is_authorized(ctx):
         return
     guild_id = str(ctx.guild.id)
     g_data = load_server_config(guild_id)
     g_data["active"] = False
     save_server_config(guild_id, g_data)
-    await ctx.send("🔴 **Adda_Zone Security Core Deactivated**")
+    await ctx.send("🔴 **Adda_Zone Security Core & Anti-Nuke Deactivated**")
 
 @bot.command(name="help", aliases=["commands", "panel"])
 async def help_command(ctx):
     prefix = get_prefix(bot, ctx.message)
-    embed = discord.Embed(title="🛡️ Adda_Zone Security Commands", description=f"Prefix: `{prefix}`", color=353942)
+    embed = discord.Embed(title="🛡️ Adda_Zone Security & Voice Command Hub", description=f"Prefix: `{prefix}`", color=353942)
     embed.add_field(name="Moderation Commands", value=f"`{prefix}kick @user`, `{prefix}ban @user`, `{prefix}timeout @user [minutes]`", inline=False)
+    embed.add_field(name="Voice Controls", value=f"`{prefix}vcmute @user`, `{prefix}vcunmute @user`, `{prefix}vcdeafen @user`", inline=False)
     embed.add_field(name="System Controls", value=f"`{prefix}on` / `{prefix}off`, `{prefix}ping`", inline=False)
     await ctx.send(embed=embed)
 
